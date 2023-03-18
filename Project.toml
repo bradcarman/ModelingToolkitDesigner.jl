@@ -1,0 +1,10 @@
+name = "ModelingToolkitDesigner"
+uuid = "23d639d0-9462-4d1e-84fe-d700424865b8"
+authors = ["Brad Carman <brad_carman@instron.com>"]
+version = "0.1.0"
+
+[deps]
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+FilterHelpers = "d8f44d74-4a63-4059-add9-16c5740a0809"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
