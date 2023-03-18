@@ -26,6 +26,7 @@ TODO:
 #     wall::Symbol
 # end
 
+const Δh = 0.05
 
 mutable struct ODESystemDesign
     # parameters::Vector{Parameter}
@@ -39,10 +40,20 @@ mutable struct ODESystemDesign
     xy::Observable{Tuple{Float64, Float64}}
     icon::Union{String, Nothing}
     color::Observable{Symbol}
-    wall::Symbol
+    wall::Observable{Symbol}
 end
 
-function ODESystemDesign(rootnamespace::Union{Symbol, Nothing}, system::ODESystem, design::Dict; x=0.0, y=0.0, icon=nothing, wall=:E)
+function ODESystemDesign(rootnamespace::Union{Symbol, Nothing}, system::ODESystem, design::Union{Vector{Pair{ODESystem, NamedTuple}}, Dict}; x=0.0, y=0.0, icon=nothing, wall=:E)
+
+    if design isa Vector{Pair{ODESystem, NamedTuple}}
+        pairs = design
+        design = Dict()
+        for (sys, args) in pairs
+            push!(design, sys.name => args)
+        end
+    end
+
+    # Main._x[] = design
 
     println("system: $(system.name)")
     if !isnothing(rootnamespace)
@@ -56,7 +67,7 @@ function ODESystemDesign(rootnamespace::Union{Symbol, Nothing}, system::ODESyste
 
     children = ODESystemDesign[]
     connectors = ODESystemDesign[]
-    connections = Pair[]
+    connections = Tuple{ODESystemDesign, ODESystemDesign}[]
     if !isempty(systems)
         children_ = filter(x->!ModelingToolkit.isconnector(x), systems)
         if !isempty(children_)
@@ -94,14 +105,18 @@ function ODESystemDesign(rootnamespace::Union{Symbol, Nothing}, system::ODESyste
 
             if eq.rhs isa Connection
 
-                connections = ODESystemDesign[]
+                conns = []
                 for connector in eq.rhs.systems
 
                     parent, child = split(string(connector.name), '₊')                   
                     child_design = filtersingle(x->string(x.system.name) == parent, children)
                     connector_design = filtersingle(x->string(x.system.name) == child, child_design.connectors)
 
-                    push!(connections, connector_design)
+                    push!(conns, connector_design)
+                end
+
+                for i=2:length(conns)
+                    push!(connections, (conns[i-1], conns[i]))
                 end
 
 
@@ -118,7 +133,7 @@ function ODESystemDesign(rootnamespace::Union{Symbol, Nothing}, system::ODESyste
 
 
 
-    return ODESystemDesign(rootnamespace, system, children, connectors, connections, Equation[], xy, icon, Observable(get_color(system)), wall)
+    return ODESystemDesign(rootnamespace, system, children, connectors, connections, Equation[], xy, icon, Observable(get_color(system)), Observable(wall))
 end
 
 # connector => box
@@ -280,6 +295,24 @@ function view(model::ODESystemDesign)
         println(event.key)
     end
 
+    next_wall_button = Button(fig[11,3]; label="move node")
+    on(next_wall_button.clicks) do clicks
+        for system in model.systems
+            for connector in system.connectors
+                if connector.color[] == :pink
+                    if connector.wall[] == :N 
+                        connector.wall[] = :E
+                    elseif connector.wall[] == :W
+                        connector.wall[] = :N
+                    elseif connector.wall[] == :S
+                        connector.wall[] = :W
+                    elseif connector.wall[] == :E
+                        connector.wall[] = :S
+                    end
+                end
+            end
+        end
+    end
 
     fig
 
@@ -305,9 +338,7 @@ function connect(model::ODESystemDesign)
             
             push!(selected_connectors, connector)
        
-            on(connector.xy) do val
-                update()
-            end
+
 
             color = get_color(connector)
             connector.color[] = color
@@ -341,6 +372,11 @@ function connect(connection::Tuple{ODESystemDesign, ODESystemDesign})
         notify(ys)
     end
 
+    for connector in connection
+        on(connector.xy) do val
+            update()
+        end
+    end
 
     update()  
 
@@ -352,7 +388,7 @@ end
 
 
 
-get_wall(system::ODESystemDesign) = system.wall
+get_wall(system::ODESystemDesign) = system.wall[]
 
 
 get_text_alignment(wall::Symbol) = get_text_alignment(Val(wall))
@@ -376,7 +412,7 @@ end
 
 
 function add_system(system::ODESystemDesign)
-    Δh = 0.05
+    
 
     xso = Observable(zeros(5))
     yso = Observable(zeros(5))
@@ -413,82 +449,96 @@ function add_system(system::ODESystemDesign)
 
     text!(ax[], xo, ylabelo; text=string(system.system.name), align=(:center, :bottom))
 
-    wall(y) = filter(x->get_wall(x) == y, system.connectors)
+    draw_connector_nodes = () -> begin
+        wall(y) = filter(x->get_wall(x) == y, system.connectors)
 
-    # walls = [ModelingToolkitComponents.N, ModelingToolkitComponents.S, ModelingToolkitComponents.E, ModelingToolkitComponents.W]
-    walls = [:N, :S, :E, :W]
-    for w in walls
+        # walls = [ModelingToolkitComponents.N, ModelingToolkitComponents.S, ModelingToolkitComponents.E, ModelingToolkitComponents.W]
+        for w in [:N, :S, :E, :W]
 
 
-        connectors_on_wall = wall(w)
+            connectors_on_wall = wall(w)
 
-        n_items = length(connectors_on_wall)
-        delta = 2*Δh/(n_items+1)
+            n_items = length(connectors_on_wall)
+            delta = 2*Δh/(n_items+1)
 
-        #TODO: Order by item.node_order
+            #TODO: Order by item.node_order
 
-        for i=1:n_items
+            for i=1:n_items
 
-            if w == :N
-                x = delta*i - Δh
-                xt = x
-                y = +Δh
-                yt = y*0.6
+                draw_connector_node(connectors_on_wall[i], delta, i, w)
+                
             end
 
-            if w == :S
-                x = delta*i - Δh
-                xt = x
-                y = -Δh
-                yt = y*0.6
-            end
 
-            if w == :E
-                x = +Δh
-                xt = x*1.4
-                y = delta*i - Δh
-                yt = y
-            end
-
-            if w == :W
-                x = -Δh
-                xt = x*1.4
-                y = delta*i - Δh
-                yt = y
-            end
-
-            xpo = Observable(0.0)
-            on(xo) do val
-                xpo[] = val + x
-                connectors_on_wall[i].xy[] = (xpo[], connectors_on_wall[i].xy[][2])
-            end 
-
-            ypo = Observable(0.0)
-            on(yo) do val
-                ypo[] = val + y
-                connectors_on_wall[i].xy[] = (connectors_on_wall[i].xy[][1], ypo[])
-            end 
-
-            xto = Observable(0.0)
-            on(xo) do val
-                xto[] = val + xt
-            end 
-
-            yto = Observable(0.0)
-            on(yo) do val
-                yto[] = val + yt
-            end 
-
-            
-
-            scatter!(ax[], xpo, ypo; marker=:rect, color = connectors_on_wall[i].color, markersize=15)
-            text!(ax[], xto, yto; text=string(connectors_on_wall[i].system.name), color = get_color(connectors_on_wall[i]), align=get_text_alignment(w), fontsize=10)
-            
         end
-
-
     end
 
+    draw_connector_nodes()
+
+    for connector in system.connectors
+        on(connector.wall) do val
+            draw_connector_nodes()
+        end
+    end
+
+end
+
+function draw_connector_node(connector::ODESystemDesign, delta, i, w)
+    if w == :N
+        x = delta*i - Δh
+        xt = x
+        y = +Δh
+        yt = y*0.6
+    end
+
+    if w == :S
+        x = delta*i - Δh
+        xt = x
+        y = -Δh
+        yt = y*0.6
+    end
+
+    if w == :E
+        x = +Δh
+        xt = x*1.4
+        y = delta*i - Δh
+        yt = y
+    end
+
+    if w == :W
+        x = -Δh
+        xt = x*1.4
+        y = delta*i - Δh
+        yt = y
+    end
+
+    xpo = Observable(0.0)
+    on(xo) do val
+        xpo[] = val + x
+        connector.xy[] = (xpo[], connector.xy[][2])
+    end 
+
+    ypo = Observable(0.0)
+    on(yo) do val
+        ypo[] = val + y
+        connector.xy[] = (connector.xy[][1], ypo[])
+    end 
+
+    xto = Observable(0.0)
+    on(xo) do val
+        xto[] = val + xt
+    end 
+
+    yto = Observable(0.0)
+    on(yo) do val
+        yto[] = val + yt
+    end 
+
+    
+
+    scatter!(ax[], xpo, ypo; marker=:rect, color = connector.color, markersize=15)
+    text!(ax[], xto, yto; text=string(connector.system.name), color = get_color(connector), align=get_text_alignment(w), fontsize=10)
+    
 end
 
 

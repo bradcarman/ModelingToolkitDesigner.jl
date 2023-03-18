@@ -52,7 +52,7 @@ function system(N; name, fluid)
     eqs = [
         connect(stp.output, src.input)
         connect(src.port, res.port_a)
-        connect(res.port_b, vol.port)
+        # connect(res.port_b, vol.port)
     ]
 
     ODESystem(eqs, t, [], pars; name, systems)
