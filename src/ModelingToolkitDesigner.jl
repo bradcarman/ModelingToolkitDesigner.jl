@@ -4,27 +4,6 @@ using ModelingToolkit
 using FilterHelpers
 using FileIO
 
-#=
-TODO:
-
-- scale the labels
-- add this repo to my GitHub account
-=#
-
-
-# struct Parameter
-
-# end
-
-# struct State
-
-# end
-
-# struct Connector
-#     type::Symbol
-#     color::Symbol
-#     wall::Symbol
-# end
 
 const Δh = 0.05
 
@@ -152,10 +131,10 @@ function Base.isapprox(a::Tuple{Float64, Float64}, b::Tuple{Float64, Float64}; a
 end
 
 get_change(::Val) = (0.0, 0.0)
-get_change(::Val{Keyboard.up}) = (0.0, +0.01)
-get_change(::Val{Keyboard.down}) = (0.0, -0.01)
-get_change(::Val{Keyboard.left}) = (-0.01, 0.0)
-get_change(::Val{Keyboard.right}) = (+0.01, 0.0)
+get_change(::Val{Keyboard.up}) = (0.0, +Δh/5)
+get_change(::Val{Keyboard.down}) = (0.0, -Δh/5)
+get_change(::Val{Keyboard.left}) = (-Δh/5, 0.0)
+get_change(::Val{Keyboard.right}) = (+Δh/5, 0.0)
 
 function view(model::ODESystemDesign)
 
@@ -178,10 +157,10 @@ function view(model::ODESystemDesign)
 
     for system in model.systems
         add_system(system)
-        notify(system.xy)
         for connector in system.connectors
             notify(connector.wall)
         end
+        notify(system.xy)
     end
 
     for connection in model.connections
@@ -397,7 +376,7 @@ get_text_alignment(wall::Symbol) = get_text_alignment(Val(wall))
 get_text_alignment(::Val{:E}) = (:left, :top)
 get_text_alignment(::Val{:W}) = (:right, :top)
 get_text_alignment(::Val{:S}) = (:left, :top)
-get_text_alignment(::Val{:N}) = (:right, :top)
+get_text_alignment(::Val{:N}) = (:right, :bottom)
 
 
 get_color(system_design::ODESystemDesign) = get_color(system_design.system)
@@ -469,19 +448,41 @@ end
 
 function draw_nodes(system::ODESystemDesign)
   
+    xo = Observable(0.0)
+    yo = Observable(0.0)
+
+    on(system.xy) do val
+
+        x = val[1]
+        y = val[2]
+
+        xo[] = x
+        yo[] = y
+
+    end
+
+    update = (connector) -> begin
+        println("updating node: $(system.system.name) $(connector.system.name)")
+        connectors_on_wall = filter(x->x.wall[] == connector.wall[], system.connectors)
+
+        n_items = length(connectors_on_wall)
+        delta = 2*Δh/(n_items+1)
+
+        for i=1:n_items
+            x,y = get_node_position(connector.wall[], delta, i)
+            connectors_on_wall[i].xy[] = (x+xo[],y+yo[])
+        end
+    end
+
+
     for connector in system.connectors
 
         on(connector.wall) do val
-            println("updating node: $(system.system.name) $(connector.system.name)")
-            connectors_on_wall = filter(x->x.wall[] == val, system.connectors)
+            update(connector)
+        end
 
-            n_items = length(connectors_on_wall)
-            delta = 2*Δh/(n_items+1)
-
-            for i=1:n_items
-                x,y = get_node_position(val, delta, i)
-                connectors_on_wall[i].xy[] = (x,y)
-            end
+        on(system.xy) do val
+            update(connector)
         end
 
         draw_node(connector)
@@ -532,16 +533,16 @@ get_node_position(w::Symbol, delta, i) = get_node_position(Val(w), delta, i)
 get_node_label_position(w::Symbol, x, y) = get_node_label_position(Val(w), x, y)
 
 get_node_position(::Val{:N}, delta, i) = (delta*i - Δh, +Δh)
-get_node_label_position(::Val{:N}, x, y) = (x, y*0.6)
+get_node_label_position(::Val{:N}, x, y) = (x, y+Δh/5)
 
 get_node_position(::Val{:S}, delta, i) = (delta*i - Δh, -Δh)
-get_node_label_position(::Val{:S}, x, y) = (x, y*0.6)
+get_node_label_position(::Val{:S}, x, y) = (x, y-Δh/5)
 
 get_node_position(::Val{:E}, delta, i) = (+Δh, delta*i - Δh)
-get_node_label_position(::Val{:E}, x, y) = (x*1.4, y)
+get_node_label_position(::Val{:E}, x, y) = (x+Δh/5, y)
 
 get_node_position(::Val{:W}, delta, i) = (-Δh, delta*i - Δh)
-get_node_label_position(::Val{:W}, x, y) = (x*1.4, y)
+get_node_label_position(::Val{:W}, x, y) = (x-Δh/5, y)
 
 
     
@@ -555,65 +556,6 @@ function add_system(system::ODESystemDesign)
     draw_nodes(system)
 
 end
-
-function draw_node(connector::ODESystemDesign, delta, i, w, xo, yo)
-    if w == :N
-        x = delta*i - Δh
-        xt = x
-        y = +Δh
-        yt = y*0.6
-    end
-
-    if w == :S
-        x = delta*i - Δh
-        xt = x
-        y = -Δh
-        yt = y*0.6
-    end
-
-    if w == :E
-        x = +Δh
-        xt = x*1.4
-        y = delta*i - Δh
-        yt = y
-    end
-
-    if w == :W
-        x = -Δh
-        xt = x*1.4
-        y = delta*i - Δh
-        yt = y
-    end
-
-    xpo = Observable(0.0)
-    on(xo) do val
-        xpo[] = val + x
-        connector.xy[] = (xpo[], connector.xy[][2])
-    end 
-
-    ypo = Observable(0.0)
-    on(yo) do val
-        ypo[] = val + y
-        connector.xy[] = (connector.xy[][1], ypo[])
-    end 
-
-    xto = Observable(0.0)
-    on(xo) do val
-        xto[] = val + xt
-    end 
-
-    yto = Observable(0.0)
-    on(yo) do val
-        yto[] = val + yt
-    end 
-
-    
-
-    scatter!(ax[], xpo, ypo; marker=:rect, color = connector.color, markersize=15)
-    text!(ax[], xto, yto; text=string(connector.system.name), color = get_color(connector), align=get_text_alignment(w), fontsize=10)
-    
-end
-
 
 # box(model::ODESystemDesign, Δh = 0.05) = box(model.xy[][1], model.xy[],[2] Δh)
 
