@@ -179,6 +179,9 @@ function view(model::ODESystemDesign)
     for system in model.systems
         add_system(system)
         notify(system.xy)
+        for connector in system.connectors
+            notify(connector.wall)
+        end
     end
 
     for connection in model.connections
@@ -198,7 +201,6 @@ function view(model::ODESystemDesign)
                 println("$plt i=$i")
 
                 if !isnothing(plt)
-                    Main._x[] = plt
 
                     if plt isa Image
 
@@ -411,79 +413,150 @@ function get_color(system::ODESystem)
 end
 
 
-function add_system(system::ODESystemDesign)
+function draw_box(system::ODESystemDesign)
     
+    xo = Observable(zeros(5))
+    yo = Observable(zeros(5))
+    
+    on(system.xy) do val
+        x = val[1]
+        y = val[2]
+        xo[], yo[] = box(x,y)
+    end
 
-    xso = Observable(zeros(5))
-    yso = Observable(zeros(5))
+    lines!(ax[], xo, yo; color=system.color)
+end
 
+function draw_icon(system::ODESystemDesign)
+
+    xo = Observable(zeros(2))
+    yo = Observable(zeros(2))
+
+    on(system.xy) do val
+
+        x = val[1]
+        y = val[2]
+
+        xo[] = [x - Δh, x + Δh]
+        yo[] = [y - Δh, y + Δh]
+
+    end
+
+    
+    if !isnothing(system.icon)
+        img = load(system.icon)       
+        image!(ax[], xo, yo, rotr90(img))
+    end   
+end
+
+function draw_label(system::ODESystemDesign)
+    
     xo = Observable(0.0)
     yo = Observable(0.0)
 
-    xro = Observable(zeros(2))
-    yro = Observable(zeros(2))
-
     on(system.xy) do val
-        xs, ys = box(val[1], val[2])
-        xso[] = xs
-        yso[] = ys
 
-        xro[] = [minimum(xs), maximum(xs)]
-        yro[] = [minimum(ys), maximum(ys)]
+        x = val[1]
+        y = val[2]
 
-        xo[] = val[1]
-        yo[] = val[2]
+        xo[] = x
+        yo[] = y - 0.1
+
     end
 
-    lines!(ax[], xso, yso; color=system.color)
+    text!(ax[], xo, yo; text=string(system.system.name), align=(:center, :bottom))
+end
 
-    if !isnothing(system.icon)
-        img = load(system.icon)       
-        image!(ax[], xro, yro, rotr90(img))
-    end    
+function draw_nodes(system::ODESystemDesign)
+  
+    for connector in system.connectors
 
-    ylabelo = Observable(0.0)
-    on(yo) do val
-        ylabelo[] = val - 0.1
-    end
-
-    text!(ax[], xo, ylabelo; text=string(system.system.name), align=(:center, :bottom))
-
-    draw_connector_nodes = () -> begin
-        wall(y) = filter(x->get_wall(x) == y, system.connectors)
-
-        # walls = [ModelingToolkitComponents.N, ModelingToolkitComponents.S, ModelingToolkitComponents.E, ModelingToolkitComponents.W]
-        for w in [:N, :S, :E, :W]
-
-
-            connectors_on_wall = wall(w)
+        on(connector.wall) do val
+            println("updating node: $(system.system.name) $(connector.system.name)")
+            connectors_on_wall = filter(x->x.wall[] == val, system.connectors)
 
             n_items = length(connectors_on_wall)
             delta = 2*Δh/(n_items+1)
 
-            #TODO: Order by item.node_order
-
             for i=1:n_items
-
-                draw_connector_node(connectors_on_wall[i], delta, i, w)
-                
+                x,y = get_node_position(val, delta, i)
+                connectors_on_wall[i].xy[] = (x,y)
             end
-
-
         end
-    end
 
-    draw_connector_nodes()
-
-    for connector in system.connectors
-        on(connector.wall) do val
-            draw_connector_nodes()
-        end
+        draw_node(connector)
+        draw_node_label(connector)
     end
 
 end
 
-function draw_connector_node(connector::ODESystemDesign, delta, i, w)
+function draw_node(connector::ODESystemDesign)
+    xo = Observable(0.0)
+    yo = Observable(0.0)
+
+    on(connector.xy) do val
+
+        x = val[1]
+        y = val[2]
+
+        xo[] = x
+        yo[] = y
+
+    end
+
+    scatter!(ax[], xo, yo; marker=:rect, color = connector.color, markersize=15)
+end
+
+function draw_node_label(connector::ODESystemDesign)
+    xo = Observable(0.0)
+    yo = Observable(0.0)
+    alignment = Observable((:left, :top))
+
+    on(connector.xy) do val
+
+        x = val[1]
+        y = val[2]
+
+        xt, yt = get_node_label_position(connector.wall[], x, y)
+
+        xo[] = xt
+        yo[] = yt
+
+        alignment[] = get_text_alignment(connector.wall[])
+    end
+
+    text!(ax[], xo, yo; text=string(connector.system.name), color = connector.color, align=alignment, fontsize=10)
+end
+
+get_node_position(w::Symbol, delta, i) = get_node_position(Val(w), delta, i)
+get_node_label_position(w::Symbol, x, y) = get_node_label_position(Val(w), x, y)
+
+get_node_position(::Val{:N}, delta, i) = (delta*i - Δh, +Δh)
+get_node_label_position(::Val{:N}, x, y) = (x, y*0.6)
+
+get_node_position(::Val{:S}, delta, i) = (delta*i - Δh, -Δh)
+get_node_label_position(::Val{:S}, x, y) = (x, y*0.6)
+
+get_node_position(::Val{:E}, delta, i) = (+Δh, delta*i - Δh)
+get_node_label_position(::Val{:E}, x, y) = (x*1.4, y)
+
+get_node_position(::Val{:W}, delta, i) = (-Δh, delta*i - Δh)
+get_node_label_position(::Val{:W}, x, y) = (x*1.4, y)
+
+
+    
+
+
+function add_system(system::ODESystemDesign)
+    
+    draw_box(system)
+    draw_icon(system)
+    draw_label(system)
+    draw_nodes(system)
+
+end
+
+function draw_node(connector::ODESystemDesign, delta, i, w, xo, yo)
     if w == :N
         x = delta*i - Δh
         xt = x
