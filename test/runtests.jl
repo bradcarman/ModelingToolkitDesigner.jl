@@ -1,5 +1,6 @@
 using ModelingToolkitDesigner
 using ModelingToolkit, OrdinaryDiffEq, Test
+using TOML
 import ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible as IC
 import ModelingToolkitStandardLibrary.Blocks as B
 import ModelingToolkitStandardLibrary.Mechanical.Translational as T
@@ -12,7 +13,7 @@ using ModelingToolkitDesigner: ODESystemDesign, DesignColorMap, DesignMap
 @parameters t
 D = Differential(t)
 
-function system(N; name)
+@component function system(N; name)
 
     pars = []
 
@@ -37,6 +38,51 @@ maps = DesignMap[
     DesignColorMap("ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible.HydraulicFluid", :blue)
 ]
 
+function design_file(system::ODESystem)
+    @assert !isnothing(system.gui_metadata) "ODESystem must use @component"
+
+    path = joinpath(@__DIR__, "designs")
+    if !isdir(path)
+        mkdir(path)
+    end
+
+    parts = split(string(system.gui_metadata.type),'.')
+    for part in parts[1:end-1]
+        path = joinpath(path, part)
+        if !isdir(path)
+            mkdir(path)
+        end
+    end
+    file = joinpath(path, "$(parts[end]).toml")
+
+    return file
+end
+
+function save_design(design::NamedTuple, system::ODESystem)
+    design_dict = Dict()
+    for (key, value) in zip(keys(design), values(design))
+    
+        inner_dict = Dict()
+        for (ikey, ivalue) in zip(keys(value), values(value))
+            push!(inner_dict, ikey => ivalue)
+        end
+    
+        push!(design_dict, key => inner_dict)
+    
+    end
+
+    file = design_file(system)
+
+    open(file,"w") do io
+        TOML.print(io, design_dict; sorted=true) do val
+            if val isa Symbol
+                return string(val)
+            end
+        end
+    end
+
+end
+
 
 res_design = (
     p1 = (x=0.67, y=0.3, port_a=:W),
@@ -53,55 +99,25 @@ res_design = (
     port_b = (x=1.31, y=0.15)
 )
 
-res_design_dict = Dict()
-for (key, value) in zip(keys(res_design), values(res_design))
+save_design(res_design, sys.res)
 
-    inner_dict = Dict()
-    for (ikey, ivalue) in zip(keys(value), values(value))
-        push!(inner_dict, ikey => ivalue)
-    end
+sys_design = (
+    stp = (x=0.0, ),
+    src = (x=0.5, input=:W),
+    res = (x=1.0, port_a =:W),
+    vol = (x=1.5, port=:W),
 
-    push!(res_design_dict, key => inner_dict)
+    fluid = (x=0.5, y=-0.5)
+)
 
-end
-
-open("icons/ModelingToolkitStandardLibrary/Hydraulic/IsothermalCompressible/Pipe.toml","w") do io
-    TOML.print(io, res_design_dict; sorted=true) do val
-        if val isa Symbol
-            return string(val)
-        end
-    end
-end
-
-sys_design = [
-    :stp => (x=0.0, )
-    :src => (x=0.5, input=:W)
-    :res => (x=1.0, port_a =:W)
-    :vol => (x=1.5, port=:W)
-
-    :fluid => (x=0.5, y=-0.5)
-]
-
-design = [
-    sys => sys_design
-    sys.res => res_design
-]
-
-if design isa Vector
-    pars = design
-    design_dict = Dict()
-    for (sys, args) in pars
-        push!(design_dict, sys.name => args)
-    end
-end
-
+save_design(sys_design, sys)
 
 @test ModelingToolkitDesigner.get_color(sys.vol.port, maps) == :blue
 @test ModelingToolkitDesigner.get_color(sys.vol, maps) == :black
 
 @test lowercase(abspath(ModelingToolkitDesigner.find_icon(sys.vol))) == lowercase(abspath(raw"icons\ModelingToolkitStandardLibrary\Hydraulic\IsothermalCompressible\FixedVolume.png"))
 
-model = ODESystemDesign(nothing, sys, maps, design);
+model = ODESystemDesign(sys, maps, joinpath(@__DIR__, "designs"));
 
 using GLMakie
 set_theme!(Theme(fontsize=10))

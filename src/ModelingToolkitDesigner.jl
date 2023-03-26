@@ -3,6 +3,7 @@ using GLMakie
 using ModelingToolkit
 using FilterHelpers
 using FileIO
+using TOML
 
 
 #TODO: write out design code
@@ -33,7 +34,7 @@ end
 mutable struct ODESystemDesign
     # parameters::Vector{Parameter}
     # states::Vector{State}
-    namespace::Union{Symbol, Nothing}
+    
     system::ODESystem
     system_color::Symbol
     systems::Vector{ODESystemDesign}
@@ -47,23 +48,78 @@ mutable struct ODESystemDesign
 
 end
 
-function ODESystemDesign(rootnamespace::Union{Symbol, Nothing}, system::ODESystem, maps::Vector{DesignMap}, design::Union{Vector{Pair{ODESystem, NamedTuple}}, Dict}; x=0.0, y=0.0, icon=nothing, wall=:E)
+function design_file(system::ODESystem, path::String)
+    @assert !isnothing(system.gui_metadata) "ODESystem must use @component"
 
-    #update design to a Dict()
-    if design isa Vector
-        pars = design
-        design = Dict()
-        for (sys, args) in pars
-            push!(design, sys.name => args)
+    # path = joinpath(@__DIR__, "designs")
+    if !isdir(path)
+        mkdir(path)
+    end
+
+    parts = split(string(system.gui_metadata.type),'.')
+    for part in parts[1:end-1]
+        path = joinpath(path, part)
+        if !isdir(path)
+            mkdir(path)
         end
+    end
+    file = joinpath(path, "$(parts[end]).toml")
+
+    return file
+end
+
+function process_children!(children::Vector{ODESystemDesign}, systems::Vector{ODESystem}, design::Dict, maps, design_path, is_connector=false; connectors...)
+    children_ = filter(x->ModelingToolkit.isconnector(x) == is_connector, systems)
+    if !isempty(children_)
+        for (i,c) in enumerate(children_)
+            # key = Symbol(namespace, "₊", c.name)
+            key = string(c.name)
+            kwargs = if haskey(design, key)
+                design[key]
+            else
+                Dict()
+            end
+    
+            kwargs_pair = Pair[]
+    
+            if !is_connector
+                if !haskey(kwargs, :x) && !haskey(kwargs, :y)
+                    push!(kwargs_pair, :x=> i*3*Δh )
+                    push!(kwargs_pair, :y=> i*Δh )
+                end
+            else
+                if haskey(connectors, c.name)
+                    push!(kwargs_pair, :wall => connectors[c.name])
+                end
+            end
+    
+            for (key, value) in kwargs
+                push!(kwargs_pair, Symbol(key)=>value)
+            end
+            push!(kwargs_pair, :icon=>find_icon(c))
+    
+            push!(children, ODESystemDesign(c, maps, design_path; NamedTuple(kwargs_pair)...))                
+        end
+       
+    end
+    
+end
+
+function ODESystemDesign(system::ODESystem, maps::Vector{DesignMap}, design_path::String; x=0.0, y=0.0, icon=nothing, wall=:E, kwargs...)
+
+    file = design_file(system, design_path)
+    design = if isfile(file)
+        TOML.parsefile(file)
+    else
+        Dict()
     end
 
     println("system: $(system.name)")
-    if !isnothing(rootnamespace)
-        namespace = Symbol(rootnamespace, "₊", system.name)
-    else
-        namespace = system.name
-    end
+    # if !isnothing(rootnamespace)
+    #     namespace = Symbol(rootnamespace, "₊", system.name)
+    # else
+    #     namespace = system.name
+    # end
 
     systems = filter(x-> typeof(x) == ODESystem, ModelingToolkit.get_systems(system))
     
@@ -72,66 +128,9 @@ function ODESystemDesign(rootnamespace::Union{Symbol, Nothing}, system::ODESyste
     connectors = ODESystemDesign[]
     connections = Tuple{ODESystemDesign, ODESystemDesign}[]
     if !isempty(systems)
-        children_ = filter(x->!ModelingToolkit.isconnector(x), systems)
-        if !isempty(children_)
-    
-            for (i,c) in enumerate(children_)
-                key = Symbol(namespace, "₊", c.name)
-                kwargs = if haskey(design, key)
-                    design[key]
-                else
-                    NamedTuple()
-                end
-
-                kwargs_pair = Pair[]
-
-                if !haskey(kwargs, :x) && !haskey(kwargs, :y)
-                    push!(kwargs_pair, :x=> i*3*Δh )
-                    push!(kwargs_pair, :y=> i*Δh )
-                end
-
-                for (key, value) in pairs(kwargs)
-                    push!(kwargs_pair, key=>value)
-                end
-                push!(kwargs_pair, :icon=>find_icon(c))
-
-                push!(children, ODESystemDesign(namespace, c, maps, design; NamedTuple(kwargs_pair)...))                
-            end
-        end
-
-        connectors_ = filter(x->ModelingToolkit.isconnector(x), systems)
-        if !isempty(connectors_)
-            
-            for (i,c) in enumerate(connectors_)
-
-                key = Symbol(namespace, "₊", c.name)
-                kwargs = if haskey(design, key)
-                    design[key]
-                else
-                    NamedTuple()
-                end
-
-                kwargs_pair = Pair[]
-                # style = get_style(c)
-                # if !isnothing(style)
-                #     println("found style! $style")
-                #     if haskey(kwargs, :wall)
-                #         kwargs[:wall] = style
-                #     else
-                #         push!(kwargs_pair, :wall=>style)
-                #     end
-                # end
-
-                for (key, value) in pairs(kwargs)
-                    push!(kwargs_pair, key=>value)
-                end
-                push!(kwargs_pair, :icon=>find_icon(c))
-
-                
-                push!(connectors, ODESystemDesign(namespace, c, maps, design; NamedTuple(kwargs_pair)...))                
-            end
-        end
-
+        
+        process_children!(children, systems, design, maps, design_path, false; kwargs...)
+        process_children!(connectors, systems, design, maps, design_path, true; kwargs...)
         
         for eq in equations(system)
 
@@ -163,16 +162,17 @@ function ODESystemDesign(rootnamespace::Union{Symbol, Nothing}, system::ODESyste
 
 
         end
-        
-        
-    
+   
     end
 
     xy= Observable((x,y))
     color = get_color(system, maps) 
+    if wall isa String
+        wall = Symbol(wall)
+    end
 
 
-    return ODESystemDesign(rootnamespace, system, color, children, connectors, connections, xy, icon, Observable(color), Observable(wall))
+    return ODESystemDesign(system, color, children, connectors, connections, xy, icon, Observable(color), Observable(wall))
 end
 
 function find_icon(sys::ODESystem)

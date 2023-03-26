@@ -1,0 +1,18 @@
+[fluid]
+x = 0.5
+y = -0.5
+
+[res]
+port_a = "W"
+x = 1.0
+
+[src]
+input = "W"
+x = 0.5
+
+[stp]
+x = 0.0
+
+[vol]
+port = "W"
+x = 1.5
