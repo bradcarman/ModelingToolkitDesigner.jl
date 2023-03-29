@@ -53,8 +53,9 @@ design = ODESystemDesign(sys, path);
 @test design.components[2].xy[] == (0.5, 0.0)
 @test lowercase(abspath(design.components[3].icon)) == fixed_volume_icon
 
-# using GLMakie
-# set_theme!(Theme(fontsize=10))
+using GLMakie
+set_theme!(Theme(resolution=(800,600)))
+
 
 @test_nowarn ModelingToolkitDesigner.view(design)
 
@@ -64,3 +65,8 @@ design = ODESystemDesign(sys, path);
 # display(GLMakie.Screen(), fig)
 
 @test_nowarn  ModelingToolkitDesigner.view(design, false)
+
+
+fig = ModelingToolkitDesigner.view(design, false)
+save("example.svg", fig)
+

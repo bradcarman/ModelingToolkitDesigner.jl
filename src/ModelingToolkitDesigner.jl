@@ -6,7 +6,6 @@ using FilterHelpers
 using FileIO
 using TOML
 
-
 #TODO: Save vector graphics with CairoMakie
 #TODO: ctrl + up/down/left/right gives bigger jumps
 #TODO: add PipeBase and HydraulicPort icons
@@ -24,7 +23,7 @@ struct DesignColorMap <: DesignMap
     color::Symbol
 end
 
-const design_maps = DesignMap[
+const design_colors = DesignMap[
     DesignColorMap("ModelingToolkitStandardLibrary.Electrical.Pin", :orange)
     
     DesignColorMap("ModelingToolkitStandardLibrary.Mechanical.Translational.MechanicalPort", :green)
@@ -40,6 +39,16 @@ const design_maps = DesignMap[
     DesignColorMap("ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible.HydraulicPort", :blue)
     DesignColorMap("ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible.HydraulicFluid", :blue)
 ]
+
+function add_color(system::ODESystem, color::Symbol)
+    @assert ModelingToolkit.isconnector(system) "The `system` must be a connector"
+
+    type = string(system.gui_metadata.type)
+    map = DesignColorMap(type, color)
+    push!(design_colors, map)
+
+    println("Added $map to `ModelingToolkitDesigner.design_colors`")    
+end
 
 
 mutable struct ODESystemDesign
@@ -268,7 +277,14 @@ function view(design::ODESystemDesign, interactive=true)
 
     fig = Figure()
 
-    ax = Axis(fig[1:10,1:10], aspect = DataAspect(), 
+    title = if isnothing(design.parent)
+        "$(design.system.name) [$(design.file)]"
+    else
+        "$(design.parent).$(design.system.name) [$(design.file)]"
+    end
+
+    ax = Axis(fig[2:11,1:10];
+                    aspect = DataAspect(), 
                     yticksvisible=false, 
                     xticksvisible=false, 
                     yticklabelsvisible =false, 
@@ -280,6 +296,17 @@ function view(design::ODESystemDesign, interactive=true)
                     rightspinecolor = :transparent,
                     topspinecolor = :transparent)
 
+    if interactive    
+        connect_button = Button(fig[12,1]; label= "connect", fontsize=12)
+        clear_selection_button = Button(fig[12,2]; label="clear selection", fontsize=12)
+        next_wall_button = Button(fig[12,3]; label="move node", fontsize=12)
+        align_horrizontal_button = Button(fig[12,4]; label="align horz.", fontsize=12)
+        align_vertical_button = Button(fig[12,5]; label="align vert.", fontsize=12)
+        open_button = Button(fig[12,6]; label="open", fontsize=12)
+        save_button = Button(fig[12,10]; label="save", fontsize=12)
+
+        Label(fig[1,:], title; halign = :left)
+    end
 
     for component in design.components
         add_component!(ax, component)
@@ -423,20 +450,14 @@ function view(design::ODESystemDesign, interactive=true)
             end
         end
         
-        connect_button = Button(fig[11,1]; label= "connect")
         on(connect_button.clicks) do clicks
             connect!(ax, design)
         end
-
-
-        clear_selection_button = Button(fig[11,2]; label="clear selection")
+        
         on(clear_selection_button.clicks) do clicks
             clear_selection(design) 
         end
 
-
-
-        next_wall_button = Button(fig[11,3]; label="move node")
         on(next_wall_button.clicks) do clicks
             for component in design.components
                 for connector in component.connectors
@@ -455,36 +476,33 @@ function view(design::ODESystemDesign, interactive=true)
             end
         end
 
-        align_horrizontal_button = Button(fig[11,4]; label="align horrizontal")
         on(align_horrizontal_button.clicks) do clicks
             align(design, :horrizontal)
         end
 
-        align_vertical_button = Button(fig[11,5]; label="align vertical")
         on(align_vertical_button.clicks) do clicks
             align(design, :vertical)
         end
 
-        open_button = Button(fig[11,6]; label="open selected")
         on(open_button.clicks) do clicks
             for component in design.components
                 if component.color[] == :pink                
                     view_design = ODESystemDesign(component.system, get_design_path(component))
                     view_design.parent = design.system.name
-                    display(GLMakie.Screen(;title="$(view_design.parent).$(view_design.system.name) [$(view_design.file)]"), view(view_design))
+                    fig_ = view(view_design)
+                    display(GLMakie.Screen(), fig_)
                     break
                 end
             end
         end
 
-        save_button = Button(fig[11,10]; label="save design")
         on(save_button.clicks) do clicks
             save_design(design)
         end
     end
 
-    reset_limits!(ax)
-    
+
+
     return fig
 end
 
@@ -596,7 +614,7 @@ function get_color(system::ODESystem)
         # domain_parts = split(full_domain, '.')
         # domain = join(domain_parts[1:end-1], '.')
 
-        map = filtersingle(x->(x.domain == domain) & (typeof(x) == DesignColorMap), design_maps)
+        map = filtersingle(x->(x.domain == domain) & (typeof(x) == DesignColorMap), design_colors)
 
         if !isnothing(map)
             return map.color
@@ -642,6 +660,24 @@ function draw_box!(ax::Axis, design::ODESystemDesign)
    
 
     lines!(ax, xo, yo; color=design.color, linewidth)
+
+
+    if !isempty(design.components)
+        xo2 = Observable(zeros(5))
+        yo2 = Observable(zeros(5))
+    
+        on(design.xy) do val
+            x = val[1]
+            y = val[2]
+    
+            xo2[], yo2[] = box(x, y, Δh_*1.1)
+        end
+       
+    
+        lines!(ax, xo2, yo2; color=design.color, linewidth)
+    end
+
+
 end
 
 function draw_icon!(ax::Axis, design::ODESystemDesign)
@@ -846,10 +882,13 @@ function connection_part(design::ODESystemDesign, connection::ODESystemDesign)
     end
 end
 
-function get_connection_code(design::ODESystemDesign)
+connection_code(design::ODESystemDesign) = connection_code(stdout, design)
+function connection_code(io::IO, design::ODESystemDesign)
+    
     for connection in design.connections
-        println("connect($(connection_part(design, connection[1])), $(connection_part(design, connection[2])))")
+        println(io, "connect($(connection_part(design, connection[1])), $(connection_part(design, connection[2])))")
     end
+
 end
 
 function save_design(design::ODESystemDesign)
@@ -886,8 +925,12 @@ function save_design(design::ODESystemDesign)
         design_dict[connector.system.name] = Dict(pairs)
     end
 
-
     save_design(design_dict, design.file)
+
+    connection_file = replace(design.file, ".toml" => ".jl")
+    open(connection_file, "w") do io
+        connection_code(io, design)
+    end
 end
 
 function save_design(design_dict::Dict, file::String)
@@ -899,6 +942,8 @@ function save_design(design_dict::Dict, file::String)
         end
     end
 end
+
+export ODESystemDesign, DesignColorMap, connection_code, add_color
 
 
 end # module ModelingToolkitDesigner
