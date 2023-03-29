@@ -100,3 +100,6 @@ ModelingToolkitDesigner.jl colors the connections based on `ModelingToolkitDesig
 - Finish adding icons for the ModelingToolkitStandardLibrary.jl
 - Finish documentation
 - Support more complex connection paths with bends etc.
+
+# [compat]
+ModelingToolkit = "8.50" > needed for Domain feature
