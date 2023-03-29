@@ -56,10 +56,11 @@ design = ODESystemDesign(sys, path);
 # using GLMakie
 # set_theme!(Theme(fontsize=10))
 
-fig = ModelingToolkitDesigner.view(design);
-display(GLMakie.Screen(;title=design.file), fig)
+@test_nowarn ModelingToolkitDesigner.view(design)
+
+# display(GLMakie.Screen(;title=design.file), fig)
 
 # fig = ModelingToolkitDesigner.view(design.systems[4]);
 # display(GLMakie.Screen(), fig)
 
-fig = ModelingToolkitDesigner.view(design, false);
+@test_nowarn  ModelingToolkitDesigner.view(design, false)
