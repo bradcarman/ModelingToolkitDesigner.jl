@@ -1,10 +1,10 @@
 using ModelingToolkitDesigner
-using ModelingToolkit, OrdinaryDiffEq, Test
-using TOML
+using ModelingToolkit, Test
+
 import ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible as IC
 import ModelingToolkitStandardLibrary.Blocks as B
 import ModelingToolkitStandardLibrary.Mechanical.Translational as T
-using GLMakie
+
 
 
 using ModelingToolkitDesigner: ODESystemDesign, DesignColorMap, DesignMap
@@ -52,21 +52,7 @@ fixed_volume_icon = lowercase(abspath(raw"icons\ModelingToolkitStandardLibrary\H
 design = ODESystemDesign(sys, path);
 @test design.components[2].xy[] == (0.5, 0.0)
 @test lowercase(abspath(design.components[3].icon)) == fixed_volume_icon
-
-using GLMakie
-set_theme!(Theme(resolution=(800,600)))
-
-
 @test_nowarn ModelingToolkitDesigner.view(design)
-
-# display(GLMakie.Screen(;title=design.file), fig)
-
-# fig = ModelingToolkitDesigner.view(design.systems[4]);
-# display(GLMakie.Screen(), fig)
-
 @test_nowarn  ModelingToolkitDesigner.view(design, false)
 
-
-fig = ModelingToolkitDesigner.view(design, false)
-save("example.svg", fig)
 
