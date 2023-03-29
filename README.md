@@ -94,3 +94,9 @@ Placing a "FixedVolume.png" file in this location will load that icon.
 
 # Colors
 ModelingToolkitDesigner.jl colors the connections based on `ModelingToolkitDesigner.design_colors`.  Colors for the ModelingToolkitStandardLibrary.jl are already loaded.  To add a custom connector color, simply use `add_color(system::ODESystem, color::Symbol)` where `system` is a reference to the connector (e.g. `sys.vol.port`) and `color` is a named color from [Colors.jl](https://juliagraphics.github.io/Colors.jl/stable/namedcolors/).
+
+# TODO
+
+- Finish adding icons for the ModelingToolkitStandardLibrary.jl
+- Finish documentation
+- Support more complex connection paths with bends etc.

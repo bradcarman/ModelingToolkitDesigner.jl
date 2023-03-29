@@ -6,9 +6,9 @@ using FilterHelpers
 using FileIO
 using TOML
 
-#TODO: Save vector graphics with CairoMakie
+
 #TODO: ctrl + up/down/left/right gives bigger jumps
-#TODO: add PipeBase and HydraulicPort icons
+
 
 
 
