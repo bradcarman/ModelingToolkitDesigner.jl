@@ -98,7 +98,7 @@ ModelingToolkitDesigner.jl colors the connections based on `ModelingToolkitDesig
 # TODO
 
 - Finish adding icons for the ModelingToolkitStandardLibrary.jl
-- Finish documentation
+- Add documentation
 - Support more complex connection paths with bends etc.
 
 # [compat]
