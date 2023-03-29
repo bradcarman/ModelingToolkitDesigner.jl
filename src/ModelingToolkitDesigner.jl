@@ -305,7 +305,7 @@ function view(design::ODESystemDesign, interactive=true)
         open_button = Button(fig[12,6]; label="open", fontsize=12)
         save_button = Button(fig[12,10]; label="save", fontsize=12)
 
-        Label(fig[1,:], title; halign = :left)
+        Label(fig[1,:], title; halign = :left, fontsize=11)
     end
 
     for component in design.components
