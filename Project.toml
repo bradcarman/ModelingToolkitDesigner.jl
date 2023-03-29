@@ -11,6 +11,9 @@ GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
+[compat]
+ModelingToolkit = "8.50"
+
 [extras]
 ModelingToolkitStandardLibrary = "16a59e39-deab-5bd0-87e4-056b12336739"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
