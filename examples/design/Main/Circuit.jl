@@ -1,0 +1,5 @@
+connect(constant.output, source.V)
+connect(source.p, resistor.p)
+connect(resistor.n, capacitor.p)
+connect(capacitor.n, source.n)
+connect(source.n, ground.g)

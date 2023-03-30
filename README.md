@@ -1,8 +1,17 @@
 # ModelingToolkitDesigner.jl
 
-The ModelingToolkitDesigner.jl package is a helper tool for visualizing and editing ModelingToolkit.jl system connections.  An example system visualization generated from this package is shown below
+The ModelingToolkitDesigner.jl package is a helper tool for visualizing and editing ModelingToolkit.jl system connections.  
 
-![example](https://user-images.githubusercontent.com/40798837/228676202-c13b93c2-d023-4b00-bed8-c8440cb8ca57.png)
+## Examples
+Examples can be found in the "examples" folder.
+
+### Hydraulic Example
+
+![example1](https://user-images.githubusercontent.com/40798837/228676202-c13b93c2-d023-4b00-bed8-c8440cb8ca57.png)
+
+### RC Circuit Example
+
+![example2](examples/electrical.svg)
 
 
 # Tutorial

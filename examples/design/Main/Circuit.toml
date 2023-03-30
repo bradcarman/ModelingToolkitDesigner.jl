@@ -1,0 +1,24 @@
+[capacitor]
+n = "S"
+x = 0.52
+y = 0.29
+
+[constant]
+x = 0.54
+y = -0.03
+
+[ground]
+x = 0.43
+y = 0.11
+
+[resistor]
+n = "W"
+p = "S"
+x = 0.8
+y = 0.29
+
+[source]
+V = "S"
+n = "W"
+x = 0.66
+y = 0.11
