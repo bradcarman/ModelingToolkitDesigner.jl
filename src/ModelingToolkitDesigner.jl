@@ -24,7 +24,7 @@ struct DesignColorMap <: DesignMap
 end
 
 const design_colors = DesignMap[
-    DesignColorMap("ModelingToolkitStandardLibrary.Electrical.Pin", :orange)
+    DesignColorMap("ModelingToolkitStandardLibrary.Electrical.Pin", :tomato)
     DesignColorMap(
         "ModelingToolkitStandardLibrary.Mechanical.Translational.MechanicalPort",
         :green,
