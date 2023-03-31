@@ -5,38 +5,34 @@ using ModelingToolkitDesigner
 using CairoMakie
 using GLMakie
 
-@component function PassThru2(;name)
+@component function PassThru2(; name)
     @variables t
-    
+
     systems = @named begin
         p1 = Pin()
         p2 = Pin()
     end
 
-    eqs = [
-        connect(p1, p2)
-    ]
+    eqs = [connect(p1, p2)]
 
     return ODESystem(eqs, t, [], []; name, systems)
 end
 
-@component function PassThru3(;name)
+@component function PassThru3(; name)
     @variables t
-    
+
     systems = @named begin
         p1 = Pin()
         p2 = Pin()
         p3 = Pin()
     end
 
-    eqs = [
-        connect(p1, p2, p3)
-    ]
+    eqs = [connect(p1, p2, p3)]
 
     return ODESystem(eqs, t, [], []; name, systems)
 end
 
-@component function Circuit(;name)
+@component function Circuit(; name)
 
     R = 1.0
     C = 1.0
@@ -48,7 +44,7 @@ end
         capacitor = Capacitor(C = C)
         source = Voltage()
         constant = Constant(k = V)
-        ground = Ground()    
+        ground = Ground()
         pt2 = PassThru2()
         pt3 = PassThru3()
     end
@@ -68,7 +64,7 @@ end
     #         connect(resistor.n, capacitor.p)
     #         connect(capacitor.n, source.n, ground.g)]
 
-    ODESystem(eqs, t, [], [];  systems, name)
+    ODESystem(eqs, t, [], []; systems, name)
 end
 
 @named rc = Circuit()
@@ -80,7 +76,7 @@ end
 
 path = joinpath(@__DIR__, "design")
 design = ODESystemDesign(rc, path)
-GLMakie.set_theme!(Theme(;fontsize=12))
+GLMakie.set_theme!(Theme(; fontsize = 12))
 ModelingToolkitDesigner.view(design)
 
 # CairoMakie.set_theme!(Theme(;fontsize=12))

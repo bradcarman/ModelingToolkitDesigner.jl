@@ -25,19 +25,33 @@ end
 
 const design_colors = DesignMap[
     DesignColorMap("ModelingToolkitStandardLibrary.Electrical.Pin", :orange)
-    
-    DesignColorMap("ModelingToolkitStandardLibrary.Mechanical.Translational.MechanicalPort", :green)
-    DesignColorMap("ModelingToolkitStandardLibrary.Mechanical.TranslationalPosition.Flange", :green)
-    DesignColorMap("ModelingToolkitStandardLibrary.Mechanical.TranslationalPosition.Support", :green)
+    DesignColorMap(
+        "ModelingToolkitStandardLibrary.Mechanical.Translational.MechanicalPort",
+        :green,
+    )
+    DesignColorMap(
+        "ModelingToolkitStandardLibrary.Mechanical.TranslationalPosition.Flange",
+        :green,
+    )
+    DesignColorMap(
+        "ModelingToolkitStandardLibrary.Mechanical.TranslationalPosition.Support",
+        :green,
+    )
     DesignColorMap("ModelingToolkitStandardLibrary.Mechanical.Rotational.Flange", :green)
     DesignColorMap("ModelingToolkitStandardLibrary.Mechanical.Rotational.Support", :green)
-
     DesignColorMap("ModelingToolkitStandardLibrary.Thermal.HeatPort", :red)
-
-    DesignColorMap("ModelingToolkitStandardLibrary.Magnetic.FluxTubes.MagneticPort", :purple)
-
-    DesignColorMap("ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible.HydraulicPort", :blue)
-    DesignColorMap("ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible.HydraulicFluid", :blue)
+    DesignColorMap(
+        "ModelingToolkitStandardLibrary.Magnetic.FluxTubes.MagneticPort",
+        :purple,
+    )
+    DesignColorMap(
+        "ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible.HydraulicPort",
+        :blue,
+    )
+    DesignColorMap(
+        "ModelingToolkitStandardLibrary.Hydraulic.IsothermalCompressible.HydraulicFluid",
+        :blue,
+    )
 ]
 
 function add_color(system::ODESystem, color::Symbol)
@@ -47,23 +61,23 @@ function add_color(system::ODESystem, color::Symbol)
     map = DesignColorMap(type, color)
     push!(design_colors, map)
 
-    println("Added $map to `ModelingToolkitDesigner.design_colors`")    
+    println("Added $map to `ModelingToolkitDesigner.design_colors`")
 end
 
 
 mutable struct ODESystemDesign
     # parameters::Vector{Parameter}
     # states::Vector{State}
-    
-    parent::Union{Symbol, Nothing}
+
+    parent::Union{Symbol,Nothing}
     system::ODESystem
     system_color::Symbol
     components::Vector{ODESystemDesign}
     connectors::Vector{ODESystemDesign}
-    connections::Vector{Tuple{ODESystemDesign, ODESystemDesign}}
-    
-    xy::Observable{Tuple{Float64, Float64}}
-    icon::Union{String, Nothing}
+    connections::Vector{Tuple{ODESystemDesign,ODESystemDesign}}
+
+    xy::Observable{Tuple{Float64,Float64}}
+    icon::Union{String,Nothing}
     color::Observable{Symbol}
     wall::Observable{Symbol}
 
@@ -72,9 +86,12 @@ mutable struct ODESystemDesign
 end
 
 Base.show(io::IO, x::ODESystemDesign) = print(io, x.system.name)
-Base.show(io::IO, x::Tuple{ODESystemDesign, ODESystemDesign}) = print(io, "$(x[1].parent).$(x[1].system.name) $(round.(x[1].xy[]; digits=2)) <---> $(x[2].parent).$(x[2].system.name) $(round.(x[2].xy[]; digits=2))")
+Base.show(io::IO, x::Tuple{ODESystemDesign,ODESystemDesign}) = print(
+    io,
+    "$(x[1].parent).$(x[1].system.name) $(round.(x[1].xy[]; digits=2)) <---> $(x[2].parent).$(x[2].system.name) $(round.(x[2].xy[]; digits=2))",
+)
 
-Base.copy(x::Tuple{ODESystemDesign, ODESystemDesign}) = (copy(x[1]), copy(x[2]))
+Base.copy(x::Tuple{ODESystemDesign,ODESystemDesign}) = (copy(x[1]), copy(x[2]))
 
 Base.copy(x::ODESystemDesign) = ODESystemDesign(
     x.parent,
@@ -87,10 +104,19 @@ Base.copy(x::ODESystemDesign) = ODESystemDesign(
     x.icon,
     Observable(x.system_color),
     Observable(x.wall[]),
-    x.file
+    x.file,
 )
 
-function ODESystemDesign(system::ODESystem, design_path::String; x=0.0, y=0.0, icon=nothing, wall=:E, parent=nothing, kwargs...)
+function ODESystemDesign(
+    system::ODESystem,
+    design_path::String;
+    x = 0.0,
+    y = 0.0,
+    icon = nothing,
+    wall = :E,
+    parent = nothing,
+    kwargs...,
+)
 
     file = design_file(system, design_path)
     design_dict = if isfile(file)
@@ -99,37 +125,60 @@ function ODESystemDesign(system::ODESystem, design_path::String; x=0.0, y=0.0, i
         Dict()
     end
 
-    systems = filter(x-> typeof(x) == ODESystem, ModelingToolkit.get_systems(system))
-    
+    systems = filter(x -> typeof(x) == ODESystem, ModelingToolkit.get_systems(system))
+
     components = ODESystemDesign[]
     connectors = ODESystemDesign[]
-    connections = Tuple{ODESystemDesign, ODESystemDesign}[]
-    
-    
+    connections = Tuple{ODESystemDesign,ODESystemDesign}[]
+
+
     if !isempty(systems)
-        
-        process_children!(components, systems, design_dict, design_path, system.name, false; kwargs...)        
-        process_children!(connectors, systems, design_dict, design_path, system.name, true; kwargs...)
-        
-        
+
+        process_children!(
+            components,
+            systems,
+            design_dict,
+            design_path,
+            system.name,
+            false;
+            kwargs...,
+        )
+        process_children!(
+            connectors,
+            systems,
+            design_dict,
+            design_path,
+            system.name,
+            true;
+            kwargs...,
+        )
+
+
         for eq in equations(system)
-            
+
             if eq.rhs isa Connection
-                
+
                 conns = []
                 for connector in eq.rhs.systems
                     if contains(string(connector.name), '₊')
                         # connector of child system
-                        conn_parent, child = split(string(connector.name), '₊')                   
-                        child_design = filtersingle(x->string(x.system.name) == conn_parent, components)
+                        conn_parent, child = split(string(connector.name), '₊')
+                        child_design = filtersingle(
+                            x -> string(x.system.name) == conn_parent,
+                            components,
+                        )
                         if !isnothing(child_design)
-                            connector_design = filtersingle(x->string(x.system.name) == child, child_design.connectors)
+                            connector_design = filtersingle(
+                                x -> string(x.system.name) == child,
+                                child_design.connectors,
+                            )
                         else
                             connector_design = nothing
                         end
                     else
                         # connector of parent system
-                        connector_design = filtersingle(x->x.system.name == connector.name, connectors)
+                        connector_design =
+                            filtersingle(x -> x.system.name == connector.name, connectors)
                     end
 
                     if !isnothing(connector_design)
@@ -137,7 +186,7 @@ function ODESystemDesign(system::ODESystem, design_path::String; x=0.0, y=0.0, i
                     end
                 end
 
-                for i=2:length(conns)
+                for i = 2:length(conns)
                     push!(connections, (conns[i-1], conns[i]))
                 end
 
@@ -146,26 +195,38 @@ function ODESystemDesign(system::ODESystem, design_path::String; x=0.0, y=0.0, i
 
 
         end
-        
+
     end
 
-    
 
-    xy= Observable((x,y))
-    color = get_color(system) 
+
+    xy = Observable((x, y))
+    color = get_color(system)
     if wall isa String
         wall = Symbol(wall)
     end
 
-    return ODESystemDesign(parent, system, color, components, connectors, connections, xy, icon, Observable(color), Observable(wall), file)
+    return ODESystemDesign(
+        parent,
+        system,
+        color,
+        components,
+        connectors,
+        connections,
+        xy,
+        icon,
+        Observable(color),
+        Observable(wall),
+        file,
+    )
 end
 
 is_pass_thru(design::ODESystemDesign) = is_pass_thru(design.system)
 function is_pass_thru(system::ODESystem)
-    types = split(string(system.gui_metadata.type),'.')
+    types = split(string(system.gui_metadata.type), '.')
 
     component_type = types[end]
-    
+
     return startswith(component_type, "PassThru")
 end
 
@@ -177,7 +238,7 @@ function design_file(system::ODESystem, path::String)
         mkdir(path)
     end
 
-    parts = split(string(system.gui_metadata.type),'.')
+    parts = split(string(system.gui_metadata.type), '.')
     for part in parts[1:end-1]
         path = joinpath(path, part)
         if !isdir(path)
@@ -189,10 +250,18 @@ function design_file(system::ODESystem, path::String)
     return file
 end
 
-function process_children!(children::Vector{ODESystemDesign}, systems::Vector{ODESystem}, design_dict::Dict, design_path::String, parent::Symbol, is_connector=false; connectors...)
-    systems = filter(x->ModelingToolkit.isconnector(x) == is_connector, systems)
+function process_children!(
+    children::Vector{ODESystemDesign},
+    systems::Vector{ODESystem},
+    design_dict::Dict,
+    design_path::String,
+    parent::Symbol,
+    is_connector = false;
+    connectors...,
+)
+    systems = filter(x -> ModelingToolkit.isconnector(x) == is_connector, systems)
     if !isempty(systems)
-        for (i,system) in enumerate(systems)
+        for (i, system) in enumerate(systems)
             # key = Symbol(namespace, "₊", system.name)
             key = string(system.name)
             kwargs = if haskey(design_dict, key)
@@ -200,41 +269,44 @@ function process_children!(children::Vector{ODESystemDesign}, systems::Vector{OD
             else
                 Dict()
             end
-    
+
             kwargs_pair = Pair[]
 
-            
+
             push!(kwargs_pair, :parent => parent)
 
-    
+
             if !is_connector
                 if !haskey(kwargs, "x") & !haskey(kwargs, "y")
-                    push!(kwargs_pair, :x=> i*3*Δh )
-                    push!(kwargs_pair, :y=> i*Δh )
+                    push!(kwargs_pair, :x => i * 3 * Δh)
+                    push!(kwargs_pair, :y => i * Δh)
                 end
             else
                 if haskey(connectors, system.name)
                     push!(kwargs_pair, :wall => connectors[system.name])
                 end
             end
-    
+
             for (key, value) in kwargs
-                push!(kwargs_pair, Symbol(key)=>value)
+                push!(kwargs_pair, Symbol(key) => value)
             end
-            push!(kwargs_pair, :icon=>find_icon(system, design_path))
-    
-            push!(children, ODESystemDesign(system, design_path; NamedTuple(kwargs_pair)...))                
+            push!(kwargs_pair, :icon => find_icon(system, design_path))
+
+            push!(
+                children,
+                ODESystemDesign(system, design_path; NamedTuple(kwargs_pair)...),
+            )
         end
-       
+
     end
-    
+
 end
 
 function get_design_path(design::ODESystemDesign)
     type = string(design.system.gui_metadata.type)
     parts = split(type, '.')
     path = joinpath(parts[1:end-1]..., "$(parts[end]).toml")
-    return replace(design.file, path=>"")
+    return replace(design.file, path => "")
 end
 
 find_icon(design::ODESystemDesign) = find_icon(design.system, get_design_path(design))
@@ -244,10 +316,10 @@ function find_icon(system::ODESystem, design_path::String)
     path = split(type, '.')
 
     bases = [
-                design_path
-                joinpath(@__DIR__, "..", "icons")
-            ]
-    
+        design_path
+        joinpath(@__DIR__, "..", "icons")
+    ]
+
     icons = [joinpath(base, path[1:end-1]..., "$(path[end]).png") for base in bases]
 
     for icon in icons
@@ -257,8 +329,8 @@ function find_icon(system::ODESystem, design_path::String)
     return joinpath(bases[end], "NotFound.png")
 end
 
- 
-function is_tuple_approx(a::Tuple{Float64, Float64}, b::Tuple{Float64, Float64}; atol)
+
+function is_tuple_approx(a::Tuple{Float64,Float64}, b::Tuple{Float64,Float64}; atol)
 
     r1 = isapprox(a[1], b[1]; atol)
     r2 = isapprox(a[2], b[2]; atol)
@@ -267,21 +339,21 @@ function is_tuple_approx(a::Tuple{Float64, Float64}, b::Tuple{Float64, Float64};
 end
 
 get_change(::Val) = (0.0, 0.0)
-get_change(::Val{Keyboard.up}) = (0.0, +Δh/5)
-get_change(::Val{Keyboard.down}) = (0.0, -Δh/5)
-get_change(::Val{Keyboard.left}) = (-Δh/5, 0.0)
-get_change(::Val{Keyboard.right}) = (+Δh/5, 0.0)
+get_change(::Val{Keyboard.up}) = (0.0, +Δh / 5)
+get_change(::Val{Keyboard.down}) = (0.0, -Δh / 5)
+get_change(::Val{Keyboard.left}) = (-Δh / 5, 0.0)
+get_change(::Val{Keyboard.right}) = (+Δh / 5, 0.0)
 
 
 
-function view(design::ODESystemDesign, interactive=true)
+function view(design::ODESystemDesign, interactive = true)
 
     if interactive
         GLMakie.activate!()
     else
         CairoMakie.activate!()
     end
-    
+
 
 
     fig = Figure()
@@ -292,32 +364,35 @@ function view(design::ODESystemDesign, interactive=true)
         "$(design.parent).$(design.system.name) [$(design.file)]"
     end
 
-    ax = Axis(fig[2:11,1:10];
-                    aspect = DataAspect(), 
-                    yticksvisible=false, 
-                    xticksvisible=false, 
-                    yticklabelsvisible =false, 
-                    xticklabelsvisible =false,
-                    xgridvisible=false,
-                    ygridvisible=false, 
-                    bottomspinecolor = :transparent,
-                    leftspinecolor = :transparent,
-                    rightspinecolor = :transparent,
-                    topspinecolor = :transparent)
+    ax = Axis(
+        fig[2:11, 1:10];
+        aspect = DataAspect(),
+        yticksvisible = false,
+        xticksvisible = false,
+        yticklabelsvisible = false,
+        xticklabelsvisible = false,
+        xgridvisible = false,
+        ygridvisible = false,
+        bottomspinecolor = :transparent,
+        leftspinecolor = :transparent,
+        rightspinecolor = :transparent,
+        topspinecolor = :transparent,
+    )
 
-    if interactive    
-        connect_button = Button(fig[12,1]; label= "connect", fontsize=12)
-        clear_selection_button = Button(fig[12,2]; label="clear selection", fontsize=12)
-        next_wall_button = Button(fig[12,3]; label="move node", fontsize=12)
-        align_horrizontal_button = Button(fig[12,4]; label="align horz.", fontsize=12)
-        align_vertical_button = Button(fig[12,5]; label="align vert.", fontsize=12)
-        open_button = Button(fig[12,6]; label="open", fontsize=12)
-        mode_toggle = Toggle(fig[12,7])
-        
-        save_button = Button(fig[12,10]; label="save", fontsize=12)
-        
+    if interactive
+        connect_button = Button(fig[12, 1]; label = "connect", fontsize = 12)
+        clear_selection_button =
+            Button(fig[12, 2]; label = "clear selection", fontsize = 12)
+        next_wall_button = Button(fig[12, 3]; label = "move node", fontsize = 12)
+        align_horrizontal_button = Button(fig[12, 4]; label = "align horz.", fontsize = 12)
+        align_vertical_button = Button(fig[12, 5]; label = "align vert.", fontsize = 12)
+        open_button = Button(fig[12, 6]; label = "open", fontsize = 12)
+        mode_toggle = Toggle(fig[12, 7])
 
-        Label(fig[1,:], title; halign = :left, fontsize=11)
+        save_button = Button(fig[12, 10]; label = "save", fontsize = 12)
+
+
+        Label(fig[1, :], title; halign = :left, fontsize = 11)
     end
 
     for component in design.components
@@ -340,9 +415,9 @@ function view(design::ODESystemDesign, interactive=true)
     if interactive
         on(events(fig).mousebutton, priority = 2) do event
 
-            if event.button == Mouse.left 
+            if event.button == Mouse.left
                 if event.action == Mouse.press
-                
+
                     # if Keyboard.s in events(fig).keyboardstate
                     # Delete marker
                     plt, i = pick(fig)
@@ -358,28 +433,34 @@ function view(design::ODESystemDesign, interactive=true)
                             yvalues = yobservable[]
 
 
-                            x = xvalues[1] + Δh*0.8
-                            y = yvalues[1] + Δh*0.8
-                            selected_system = filtersingle(s->is_tuple_approx(s.xy[], (x,y); atol=1e-3), [design.components; design.connectors])
+                            x = xvalues[1] + Δh * 0.8
+                            y = yvalues[1] + Δh * 0.8
+                            selected_system = filtersingle(
+                                s -> is_tuple_approx(s.xy[], (x, y); atol = 1e-3),
+                                [design.components; design.connectors],
+                            )
 
                             if isnothing(selected_system)
 
-                                x = xvalues[1] + Δh*0.8*0.5
-                                y = yvalues[1] + Δh*0.8*0.5
-                                selected_system = filtersingle(s->is_tuple_approx(s.xy[], (x,y); atol=1e-3), [design.components; design.connectors])
+                                x = xvalues[1] + Δh * 0.8 * 0.5
+                                y = yvalues[1] + Δh * 0.8 * 0.5
+                                selected_system = filtersingle(
+                                    s -> is_tuple_approx(s.xy[], (x, y); atol = 1e-3),
+                                    [design.components; design.connectors],
+                                )
 
                                 if isnothing(selected_system)
-                                    @warn "clicked an image at ($(round(x; digits=1)), $(round(y; digits=1))), but no system design found!" 
+                                    @warn "clicked an image at ($(round(x; digits=1)), $(round(y; digits=1))), but no system design found!"
                                 else
                                     selected_system.color[] = :pink
-                                    dragging[] = true    
+                                    dragging[] = true
                                 end
                             else
                                 selected_system.color[] = :pink
                                 dragging[] = true
                             end
 
-                            
+
 
                         elseif plt isa Lines
 
@@ -389,16 +470,23 @@ function view(design::ODESystemDesign, interactive=true)
                             observable = point[1]
                             values = observable[]
                             geometry_point = Float64.(values[1])
-                        
+
                             x = geometry_point[1]
                             y = geometry_point[2]
-                            
-                            selected_component = filtersingle(c->is_tuple_approx(c.xy[], (x,y); atol=1e-3), design.components)
+
+                            selected_component = filtersingle(
+                                c -> is_tuple_approx(c.xy[], (x, y); atol = 1e-3),
+                                design.components,
+                            )
                             if !isnothing(selected_component)
                                 selected_component.color[] = :pink
                             else
-                                all_connectors = vcat([s.connectors for s in design.components]...)
-                                selected_connector = filtersingle(c->is_tuple_approx(c.xy[], (x,y); atol=1e-3), all_connectors)
+                                all_connectors =
+                                    vcat([s.connectors for s in design.components]...)
+                                selected_connector = filtersingle(
+                                    c -> is_tuple_approx(c.xy[], (x, y); atol = 1e-3),
+                                    all_connectors,
+                                )
                                 selected_connector.color[] = :pink
                             end
 
@@ -412,7 +500,7 @@ function view(design::ODESystemDesign, interactive=true)
                     end
                     Consume(true)
                 elseif event.action == Mouse.release
-                    
+
                     dragging[] = false
                     Consume(true)
                 end
@@ -438,7 +526,7 @@ function view(design::ODESystemDesign, interactive=true)
 
                 return Consume(true)
             end
-            
+
             return Consume(false)
         end
 
@@ -446,16 +534,16 @@ function view(design::ODESystemDesign, interactive=true)
             if event.action == Keyboard.press
 
                 change = get_change(Val(event.key))
-                
+
                 if change != (0.0, 0.0)
                     for sub_design in [design.components; design.connectors]
                         if sub_design.color[] == :pink
-                            
+
                             xc = sub_design.xy[][1]
                             yc = sub_design.xy[][2]
 
                             sub_design.xy[] = (xc + change[1], yc + change[2])
-                            
+
                         end
                     end
 
@@ -465,20 +553,20 @@ function view(design::ODESystemDesign, interactive=true)
                 end
             end
         end
-        
+
         on(connect_button.clicks) do clicks
             connect!(ax, design)
         end
-        
+
         on(clear_selection_button.clicks) do clicks
-            clear_selection(design) 
+            clear_selection(design)
         end
 
         on(next_wall_button.clicks) do clicks
             for component in design.components
                 for connector in component.connectors
                     if connector.color[] == :pink
-                        if connector.wall[] == :N 
+                        if connector.wall[] == :N
                             connector.wall[] = :E
                         elseif connector.wall[] == :W
                             connector.wall[] = :N
@@ -502,8 +590,9 @@ function view(design::ODESystemDesign, interactive=true)
 
         on(open_button.clicks) do clicks
             for component in design.components
-                if component.color[] == :pink                
-                    view_design = ODESystemDesign(component.system, get_design_path(component))
+                if component.color[] == :pink
+                    view_design =
+                        ODESystemDesign(component.system, get_design_path(component))
                     view_design.parent = design.system.name
                     fig_ = view(view_design)
                     display(GLMakie.Screen(), fig_)
@@ -549,32 +638,32 @@ function align(design::ODESystemDesign, type)
     ys = Float64[]
     for sub_design in [design.components; design.connectors]
         if sub_design.color[] == :pink
-            x,y = sub_design.xy[]
+            x, y = sub_design.xy[]
             push!(xs, x)
             push!(ys, y)
         end
     end
 
-    ym = sum(ys)/length(ys) 
-    xm = sum(xs)/length(xs)
+    ym = sum(ys) / length(ys)
+    xm = sum(xs) / length(xs)
 
     for sub_design in [design.components; design.connectors]
         if sub_design.color[] == :pink
 
-            x,y = sub_design.xy[]
+            x, y = sub_design.xy[]
 
             if type == :horrizontal
-                sub_design.xy[] = (x,ym)
+                sub_design.xy[] = (x, ym)
             elseif type == :vertical
-                sub_design.xy[] = (xm,y)
+                sub_design.xy[] = (xm, y)
             end
-            
+
 
         end
     end
 end
 
-function clear_selection(design::ODESystemDesign) 
+function clear_selection(design::ODESystemDesign)
     for component in design.components
         for connector in component.connectors
             connector.color[] = connector.system_color
@@ -604,7 +693,7 @@ function connect!(ax::Axis, design::ODESystemDesign)
     end
 end
 
-function connect!(ax::Axis, connection::Tuple{ODESystemDesign, ODESystemDesign})
+function connect!(ax::Axis, connection::Tuple{ODESystemDesign,ODESystemDesign})
 
     xs = Observable(Float64[])
     ys = Observable(Float64[])
@@ -632,9 +721,9 @@ function connect!(ax::Axis, connection::Tuple{ODESystemDesign, ODESystemDesign})
         end
     end
 
-    update()  
+    update()
 
-    lines!(ax, xs, ys; color=connection[1].color[], linestyle=style)
+    lines!(ax, xs, ys; color = connection[1].color[], linestyle = style)
 end
 
 get_wall(design::ODESystemDesign) = design.wall[]
@@ -652,7 +741,10 @@ function get_color(system::ODESystem)
         # domain_parts = split(full_domain, '.')
         # domain = join(domain_parts[1:end-1], '.')
 
-        map = filtersingle(x->(x.domain == domain) & (typeof(x) == DesignColorMap), design_colors)
+        map = filtersingle(
+            x -> (x.domain == domain) & (typeof(x) == DesignColorMap),
+            design_colors,
+        )
 
         if !isnothing(map)
             return map.color
@@ -678,13 +770,13 @@ function get_style(system::ODESystem)
 end
 
 function draw_box!(ax::Axis, design::ODESystemDesign)
-    
+
     xo = Observable(zeros(5))
     yo = Observable(zeros(5))
-    
 
-    Δh_, linewidth = if ModelingToolkit.isconnector(design.system) 
-        0.6*Δh, 2
+
+    Δh_, linewidth = if ModelingToolkit.isconnector(design.system)
+        0.6 * Δh, 2
     else
         Δh, 1
     end
@@ -695,24 +787,24 @@ function draw_box!(ax::Axis, design::ODESystemDesign)
 
         xo[], yo[] = box(x, y, Δh_)
     end
-   
 
-    lines!(ax, xo, yo; color=design.color, linewidth)
+
+    lines!(ax, xo, yo; color = design.color, linewidth)
 
 
     if !isempty(design.components)
         xo2 = Observable(zeros(5))
         yo2 = Observable(zeros(5))
-    
+
         on(design.xy) do val
             x = val[1]
             y = val[2]
-    
-            xo2[], yo2[] = box(x, y, Δh_*1.1)
+
+            xo2[], yo2[] = box(x, y, Δh_ * 1.1)
         end
-       
-    
-        lines!(ax, xo2, yo2; color=design.color, linewidth)
+
+
+        lines!(ax, xo2, yo2; color = design.color, linewidth)
     end
 
 
@@ -723,7 +815,7 @@ function draw_passthru!(ax::Axis, design::ODESystemDesign)
 
     xo = Observable(0.0)
     yo = Observable(0.0)
-    
+
     on(design.xy) do val
         x = val[1]
         y = val[2]
@@ -732,12 +824,12 @@ function draw_passthru!(ax::Axis, design::ODESystemDesign)
         yo[] = y
     end
 
-    scatter!(ax, xo, yo; color=first(design.connectors).system_color, marker=:circle)
+    scatter!(ax, xo, yo; color = first(design.connectors).system_color, marker = :circle)
 
     for connector in design.connectors
         cxo = Observable(zeros(2))
         cyo = Observable(zeros(2))
-        
+
         function update()
             cxo[] = [connector.xy[][1], design.xy[][1]]
             cyo[] = [connector.xy[][2], design.xy[][2]]
@@ -751,7 +843,7 @@ function draw_passthru!(ax::Axis, design::ODESystemDesign)
             update()
         end
 
-        lines!(ax, cxo, cyo; color=connector.system_color)
+        lines!(ax, cxo, cyo; color = connector.system_color)
     end
 
 end
@@ -761,8 +853,8 @@ function draw_icon!(ax::Axis, design::ODESystemDesign)
     xo = Observable(zeros(2))
     yo = Observable(zeros(2))
 
-    scale = if ModelingToolkit.isconnector(design.system) 
-        0.5*0.8
+    scale = if ModelingToolkit.isconnector(design.system)
+        0.5 * 0.8
     else
         0.8
     end
@@ -772,25 +864,25 @@ function draw_icon!(ax::Axis, design::ODESystemDesign)
         x = val[1]
         y = val[2]
 
-        xo[] = [x - Δh*scale, x + Δh*scale]
-        yo[] = [y - Δh*scale, y + Δh*scale]
+        xo[] = [x - Δh * scale, x + Δh * scale]
+        yo[] = [y - Δh * scale, y + Δh * scale]
 
     end
 
-    
+
     if !isnothing(design.icon)
-        img = load(design.icon)       
+        img = load(design.icon)
         image!(ax, xo, yo, rotr90(img))
-    end   
+    end
 end
 
 function draw_label!(ax::Axis, design::ODESystemDesign)
-    
+
     xo = Observable(0.0)
     yo = Observable(0.0)
 
-    scale = if ModelingToolkit.isconnector(design.system) 
-        1+0.75*0.5
+    scale = if ModelingToolkit.isconnector(design.system)
+        1 + 0.75 * 0.5
     else
         0.925
     end
@@ -801,15 +893,15 @@ function draw_label!(ax::Axis, design::ODESystemDesign)
         y = val[2]
 
         xo[] = x
-        yo[] = y - Δh*scale
+        yo[] = y - Δh * scale
 
     end
 
-    text!(ax, xo, yo; text=string(design.system.name), align=(:center, :bottom))
+    text!(ax, xo, yo; text = string(design.system.name), align = (:center, :bottom))
 end
 
 function draw_nodes!(ax::Axis, design::ODESystemDesign)
-  
+
     xo = Observable(0.0)
     yo = Observable(0.0)
 
@@ -823,18 +915,20 @@ function draw_nodes!(ax::Axis, design::ODESystemDesign)
 
     end
 
-    update = (connector) -> begin
-        
-        connectors_on_wall = filter(x->x.wall[] == connector.wall[], design.connectors)
+    update =
+        (connector) -> begin
 
-        n_items = length(connectors_on_wall)
-        delta = 2*Δh/(n_items+1)
+            connectors_on_wall =
+                filter(x -> x.wall[] == connector.wall[], design.connectors)
 
-        for i=1:n_items
-            x,y = get_node_position(connector.wall[], delta, i)
-            connectors_on_wall[i].xy[] = (x+xo[],y+yo[])
+            n_items = length(connectors_on_wall)
+            delta = 2 * Δh / (n_items + 1)
+
+            for i = 1:n_items
+                x, y = get_node_position(connector.wall[], delta, i)
+                connectors_on_wall[i].xy[] = (x + xo[], y + yo[])
+            end
         end
-    end
 
 
     for connector in design.connectors
@@ -867,7 +961,7 @@ function draw_node!(ax::Axis, connector::ODESystemDesign)
 
     end
 
-    scatter!(ax, xo, yo; marker=:rect, color = connector.color, markersize=15)
+    scatter!(ax, xo, yo; marker = :rect, color = connector.color, markersize = 15)
 end
 
 function draw_node_label!(ax::Axis, connector::ODESystemDesign)
@@ -891,30 +985,38 @@ function draw_node_label!(ax::Axis, connector::ODESystemDesign)
     scene = GLMakie.Makie.parent_scene(ax)
     current_font_size = theme(scene, :fontsize)
 
-    text!(ax, xo, yo; text=string(connector.system.name), color = connector.color, align=alignment, fontsize=current_font_size[]*0.625)
+    text!(
+        ax,
+        xo,
+        yo;
+        text = string(connector.system.name),
+        color = connector.color,
+        align = alignment,
+        fontsize = current_font_size[] * 0.625,
+    )
 end
 
 get_node_position(w::Symbol, delta, i) = get_node_position(Val(w), delta, i)
 get_node_label_position(w::Symbol, x, y) = get_node_label_position(Val(w), x, y)
 
-get_node_position(::Val{:N}, delta, i) = (delta*i - Δh, +Δh)
-get_node_label_position(::Val{:N}, x, y) = (x+Δh/10, y+Δh/5)
+get_node_position(::Val{:N}, delta, i) = (delta * i - Δh, +Δh)
+get_node_label_position(::Val{:N}, x, y) = (x + Δh / 10, y + Δh / 5)
 
-get_node_position(::Val{:S}, delta, i) = (delta*i - Δh, -Δh)
-get_node_label_position(::Val{:S}, x, y) = (x+Δh/10, y-Δh/5)
+get_node_position(::Val{:S}, delta, i) = (delta * i - Δh, -Δh)
+get_node_label_position(::Val{:S}, x, y) = (x + Δh / 10, y - Δh / 5)
 
-get_node_position(::Val{:E}, delta, i) = (+Δh, delta*i - Δh)
-get_node_label_position(::Val{:E}, x, y) = (x+Δh/5, y)
+get_node_position(::Val{:E}, delta, i) = (+Δh, delta * i - Δh)
+get_node_label_position(::Val{:E}, x, y) = (x + Δh / 5, y)
 
-get_node_position(::Val{:W}, delta, i) = (-Δh, delta*i - Δh)
-get_node_label_position(::Val{:W}, x, y) = (x-Δh/5, y)
+get_node_position(::Val{:W}, delta, i) = (-Δh, delta * i - Δh)
+get_node_label_position(::Val{:W}, x, y) = (x - Δh / 5, y)
 
 
-    
+
 
 
 function add_component!(ax::Axis, design::ODESystemDesign)
-    
+
     draw_box!(ax, design)
     draw_nodes!(ax, design)
 
@@ -924,12 +1026,12 @@ function add_component!(ax::Axis, design::ODESystemDesign)
         draw_icon!(ax, design)
         draw_label!(ax, design)
     end
-    
+
 end
 
 # box(model::ODESystemDesign, Δh = 0.05) = box(model.xy[][1], model.xy[],[2] Δh)
 
-function box(x, y, Δh = 0.05)   
+function box(x, y, Δh = 0.05)
 
     xs = [x + Δh, x - Δh, x - Δh, x + Δh, x + Δh]
     ys = [y + Δh, y + Δh, y - Δh, y - Δh, y + Δh]
@@ -965,9 +1067,12 @@ end
 
 connection_code(design::ODESystemDesign) = connection_code(stdout, design)
 function connection_code(io::IO, design::ODESystemDesign)
-    
+
     for connection in design.connections
-        println(io, "connect($(connection_part(design, connection[1])), $(connection_part(design, connection[2])))")
+        println(
+            io,
+            "connect($(connection_part(design, connection[1])), $(connection_part(design, connection[2])))",
+        )
     end
 
 end
@@ -979,11 +1084,11 @@ function save_design(design::ODESystemDesign)
 
     for component in design.components
 
-        x,y = component.xy[]
+        x, y = component.xy[]
 
-        pairs = Pair{Symbol, Any}[
-            :x=>round(x; digits=2)
-            :y=>round(y; digits=2)
+        pairs = Pair{Symbol,Any}[
+            :x => round(x; digits = 2)
+            :y => round(y; digits = 2)
         ]
 
         for connector in component.connectors
@@ -991,16 +1096,16 @@ function save_design(design::ODESystemDesign)
                 push!(pairs, connector.system.name => string(connector.wall[]))
             end
         end
-        
+
         design_dict[component.system.name] = Dict(pairs)
     end
 
     for connector in design.connectors
-        x,y = connector.xy[]
+        x, y = connector.xy[]
 
-        pairs = Pair{Symbol, Any}[
-            :x=>round(x; digits=2)
-            :y=>round(y; digits=2)
+        pairs = Pair{Symbol,Any}[
+            :x => round(x; digits = 2)
+            :y => round(y; digits = 2)
         ]
 
         design_dict[connector.system.name] = Dict(pairs)
@@ -1015,8 +1120,8 @@ function save_design(design::ODESystemDesign)
 end
 
 function save_design(design_dict::Dict, file::String)
-    open(file,"w") do io
-        TOML.print(io, design_dict; sorted=true) do val
+    open(file, "w") do io
+        TOML.print(io, design_dict; sorted = true) do val
             if val isa Symbol
                 return string(val)
             end

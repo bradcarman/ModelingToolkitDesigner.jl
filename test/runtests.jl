@@ -20,19 +20,25 @@ D = Differential(t)
 
     systems = @named begin
         fluid = IC.HydraulicFluid()
-        stp = B.Step(;height = 10e5, offset = 0, start_time = 0.005, duration = Inf, smooth = 0)
-        src = IC.InputSource(;p_int=0)
-        vol = IC.FixedVolume(;p_int=0, vol=10.0)
-        res = IC.Pipe(N; p_int=0, area=0.01, length=500.0)
+        stp = B.Step(;
+            height = 10e5,
+            offset = 0,
+            start_time = 0.005,
+            duration = Inf,
+            smooth = 0,
+        )
+        src = IC.InputSource(; p_int = 0)
+        vol = IC.FixedVolume(; p_int = 0, vol = 10.0)
+        res = IC.Pipe(N; p_int = 0, area = 0.01, length = 500.0)
     end
-   
+
     eqs = Equation[
         connect(stp.output, src.input)
         connect(src.port, res.port_a)
         connect(vol.port, res.port_b)
         connect(src.port, fluid)
     ]
-    
+
     ODESystem(eqs, t, [], pars; name, systems)
 end
 
@@ -44,15 +50,20 @@ end
 
 path = joinpath(@__DIR__, "designs");
 
-fixed_volume_icon = lowercase(abspath(raw"icons\ModelingToolkitStandardLibrary\Hydraulic\IsothermalCompressible\FixedVolume.png"))
+fixed_volume_icon = lowercase(
+    abspath(
+        raw"icons\ModelingToolkitStandardLibrary\Hydraulic\IsothermalCompressible\FixedVolume.png",
+    ),
+)
 
-@test lowercase(abspath(ModelingToolkitDesigner.find_icon(sys.vol, path))) == fixed_volume_icon
+@test lowercase(abspath(ModelingToolkitDesigner.find_icon(sys.vol, path))) ==
+      fixed_volume_icon
 
 
 design = ODESystemDesign(sys, path);
 @test design.components[2].xy[] == (0.58, 0.0)
 @test lowercase(abspath(design.components[3].icon)) == fixed_volume_icon
 @test_nowarn ModelingToolkitDesigner.view(design)
-@test_nowarn  ModelingToolkitDesigner.view(design, false)
+@test_nowarn ModelingToolkitDesigner.view(design, false)
 
 
