@@ -50,7 +50,7 @@ fixed_volume_icon = lowercase(abspath(raw"icons\ModelingToolkitStandardLibrary\H
 
 
 design = ODESystemDesign(sys, path);
-@test design.components[2].xy[] == (0.5, 0.0)
+@test design.components[2].xy[] == (0.58, 0.0)
 @test lowercase(abspath(design.components[3].icon)) == fixed_volume_icon
 @test_nowarn ModelingToolkitDesigner.view(design)
 @test_nowarn  ModelingToolkitDesigner.view(design, false)

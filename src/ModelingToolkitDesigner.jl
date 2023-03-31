@@ -160,6 +160,15 @@ function ODESystemDesign(system::ODESystem, design_path::String; x=0.0, y=0.0, i
     return ODESystemDesign(parent, system, color, components, connectors, connections, xy, icon, Observable(color), Observable(wall), file)
 end
 
+is_pass_thru(design::ODESystemDesign) = is_pass_thru(design.system)
+function is_pass_thru(system::ODESystem)
+    types = split(string(system.gui_metadata.type),'.')
+
+    component_type = types[end]
+    
+    return startswith(component_type, "PassThru")
+end
+
 function design_file(system::ODESystem, path::String)
     @assert !isnothing(system.gui_metadata) "ODESystem must use @component"
 
@@ -303,7 +312,10 @@ function view(design::ODESystemDesign, interactive=true)
         align_horrizontal_button = Button(fig[12,4]; label="align horz.", fontsize=12)
         align_vertical_button = Button(fig[12,5]; label="align vert.", fontsize=12)
         open_button = Button(fig[12,6]; label="open", fontsize=12)
+        mode_toggle = Toggle(fig[12,7])
+        
         save_button = Button(fig[12,10]; label="save", fontsize=12)
+        
 
         Label(fig[1,:], title; halign = :left, fontsize=11)
     end
@@ -381,10 +393,14 @@ function view(design::ODESystemDesign, interactive=true)
                             x = geometry_point[1]
                             y = geometry_point[2]
                             
-                            all_connectors = vcat([s.connectors for s in design.components]...)
-                            selected_connector = filtersingle(c->is_tuple_approx(c.xy[], (x,y); atol=1e-3), all_connectors)
-                            
-                            selected_connector.color[] = :pink
+                            selected_component = filtersingle(c->is_tuple_approx(c.xy[], (x,y); atol=1e-3), design.components)
+                            if !isnothing(selected_component)
+                                selected_component.color[] = :pink
+                            else
+                                all_connectors = vcat([s.connectors for s in design.components]...)
+                                selected_connector = filtersingle(c->is_tuple_approx(c.xy[], (x,y); atol=1e-3), all_connectors)
+                                selected_connector.color[] = :pink
+                            end
 
                         elseif plt isa Mesh
 
@@ -499,11 +515,33 @@ function view(design::ODESystemDesign, interactive=true)
         on(save_button.clicks) do clicks
             save_design(design)
         end
+
+        on(mode_toggle.active) do val
+            toggle_pass_thrus(design, val)
+        end
     end
 
-
+    toggle_pass_thrus(design, !interactive)
 
     return fig
+end
+
+function toggle_pass_thrus(design::ODESystemDesign, hide::Bool)
+    for component in design.components
+        if is_pass_thru(component)
+            if hide
+                component.color[] = :transparent
+                for connector in component.connectors
+                    connector.color[] = :transparent
+                end
+            else
+                component.color[] = component.system_color
+                for connector in component.connectors
+                    connector.color[] = connector.system_color
+                end
+            end
+        end
+    end
 end
 
 function align(design::ODESystemDesign, type)
@@ -605,7 +643,7 @@ get_text_alignment(wall::Symbol) = get_text_alignment(Val(wall))
 get_text_alignment(::Val{:E}) = (:left, :top)
 get_text_alignment(::Val{:W}) = (:right, :top)
 get_text_alignment(::Val{:S}) = (:left, :top)
-get_text_alignment(::Val{:N}) = (:right, :bottom)
+get_text_alignment(::Val{:N}) = (:left, :bottom)
 
 get_color(design::ODESystemDesign) = get_color(design.system)
 function get_color(system::ODESystem)
@@ -680,6 +718,44 @@ function draw_box!(ax::Axis, design::ODESystemDesign)
 
 end
 
+
+function draw_passthru!(ax::Axis, design::ODESystemDesign)
+
+    xo = Observable(0.0)
+    yo = Observable(0.0)
+    
+    on(design.xy) do val
+        x = val[1]
+        y = val[2]
+
+        xo[] = x
+        yo[] = y
+    end
+
+    scatter!(ax, xo, yo; color=first(design.connectors).system_color, marker=:circle)
+
+    for connector in design.connectors
+        cxo = Observable(zeros(2))
+        cyo = Observable(zeros(2))
+        
+        function update()
+            cxo[] = [connector.xy[][1], design.xy[][1]]
+            cyo[] = [connector.xy[][2], design.xy[][2]]
+        end
+
+        on(connector.xy) do val
+            update()
+        end
+
+        on(design.xy) do val
+            update()
+        end
+
+        lines!(ax, cxo, cyo; color=connector.system_color)
+    end
+
+end
+
 function draw_icon!(ax::Axis, design::ODESystemDesign)
 
     xo = Observable(zeros(2))
@@ -716,7 +792,7 @@ function draw_label!(ax::Axis, design::ODESystemDesign)
     scale = if ModelingToolkit.isconnector(design.system) 
         1+0.75*0.5
     else
-        1.75
+        0.925
     end
 
     on(design.xy) do val
@@ -822,10 +898,10 @@ get_node_position(w::Symbol, delta, i) = get_node_position(Val(w), delta, i)
 get_node_label_position(w::Symbol, x, y) = get_node_label_position(Val(w), x, y)
 
 get_node_position(::Val{:N}, delta, i) = (delta*i - Δh, +Δh)
-get_node_label_position(::Val{:N}, x, y) = (x, y+Δh/5)
+get_node_label_position(::Val{:N}, x, y) = (x+Δh/10, y+Δh/5)
 
 get_node_position(::Val{:S}, delta, i) = (delta*i - Δh, -Δh)
-get_node_label_position(::Val{:S}, x, y) = (x, y-Δh/5)
+get_node_label_position(::Val{:S}, x, y) = (x+Δh/10, y-Δh/5)
 
 get_node_position(::Val{:E}, delta, i) = (+Δh, delta*i - Δh)
 get_node_label_position(::Val{:E}, x, y) = (x+Δh/5, y)
@@ -840,10 +916,15 @@ get_node_label_position(::Val{:W}, x, y) = (x-Δh/5, y)
 function add_component!(ax::Axis, design::ODESystemDesign)
     
     draw_box!(ax, design)
-    draw_icon!(ax, design)
-    draw_label!(ax, design)
     draw_nodes!(ax, design)
 
+    if is_pass_thru(design)
+        draw_passthru!(ax, design)
+    else
+        draw_icon!(ax, design)
+        draw_label!(ax, design)
+    end
+    
 end
 
 # box(model::ODESystemDesign, Δh = 0.05) = box(model.xy[][1], model.xy[],[2] Δh)
@@ -942,6 +1023,16 @@ function save_design(design_dict::Dict, file::String)
         end
     end
 end
+
+# macro input(file)
+#     s = if isfile(file)
+#         read(file, String)
+#     else
+#         ""
+#     end
+#     e = Meta.parse(s)
+#     esc(e)
+# end
 
 export ODESystemDesign, DesignColorMap, connection_code, add_color
 

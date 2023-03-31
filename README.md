@@ -91,6 +91,52 @@ If a component has a double lined box then it is possible to "look under the hoo
 
 Edits made to sub-components can be saved and loaded directly or indirectly.  
 
+# Pass Thrus
+To generate more esthetic diagrams, one can use as special kind of component called a `PassThru`, which simply defines 2 or more connected `connectors` to serve as a corner, tee, or any other junction.  Simply define a component function starting with `PassThru` and ModelingToolkitDesigner.jl will recognize it as a special component type.  For example for a corner with 2 connection points:
+
+
+```julia
+@component function PassThru2(;name)
+    @variables t
+    
+    systems = @named begin
+        p1 = Pin()
+        p2 = Pin()
+    end
+
+    eqs = [
+        connect(p1, p2)
+    ]
+
+    return ODESystem(eqs, t, [], []; name, systems)
+end
+```
+
+And for a tee with 3 connection points
+
+```julia
+@component function PassThru3(;name)
+    @variables t
+    
+    systems = @named begin
+        p1 = Pin()
+        p2 = Pin()
+        p3 = Pin()
+    end
+
+    eqs = [
+        connect(p1, p2, p3)
+    ]
+
+    return ODESystem(eqs, t, [], []; name, systems)
+end
+```
+
+Adding these components to your system will then allow for corners, tees, etc. to be created.  When editing is complete, use the toggle switch to hide the `PassThru` details, showing a more esthetic connection diagram.
+
+![step10-11](https://user-images.githubusercontent.com/40798837/229201536-4444a037-18b3-4efd-bc93-d2c182abf533.png)
+ 
+
 # Icons
 ModelingToolkitDesigner.jl comes with icons for the ModelingToolkitStandardLibrary.jl pre-loaded.  For custom components, icons are loaded from the `path` variable supplied to `ODESystemDesign()`.  To find the path ModelingToolkitDesign.jl is searching, pass the system of interest to `ODESystemDesign()` and replace the `.toml` with `.png`.  For example if we want to make an icon for the `sys.vol` component, we can find the path by running...
 
@@ -105,10 +151,9 @@ Placing a "FixedVolume.png" file in this location will load that icon.
 ModelingToolkitDesigner.jl colors the connections based on `ModelingToolkitDesigner.design_colors`.  Colors for the ModelingToolkitStandardLibrary.jl are already loaded.  To add a custom connector color, simply use `add_color(system::ODESystem, color::Symbol)` where `system` is a reference to the connector (e.g. `sys.vol.port`) and `color` is a named color from [Colors.jl](https://juliagraphics.github.io/Colors.jl/stable/namedcolors/).
 
 # TODO
-
 - Finish adding icons for the ModelingToolkitStandardLibrary.jl
 - Add documentation
-- Support more complex connection paths with bends etc.
 
 # [compat]
-ModelingToolkit = "8.50" > needed for Domain feature
+- ModelingToolkit = "8.50" > needed for Domain feature
+- ModelingToolkitStandardLibrary = "1.12" > needed for Hydraulic components
