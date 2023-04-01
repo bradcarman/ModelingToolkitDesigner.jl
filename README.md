@@ -51,7 +51,7 @@ end
 Then we can visualize the system using `ODESystemDesign()` and the `view()` functions
 
 ```julia
-path = "./design" # folder where visualization info is saved and retrieved
+path = joinpath(@__DIR__, "design") # folder where visualization info is saved and retrieved
 design = ODESystemDesign(sys, path);
 ModelingToolkitDesigner.view(design)
 ```
