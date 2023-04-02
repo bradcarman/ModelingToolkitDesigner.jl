@@ -81,4 +81,4 @@ ModelingToolkitDesigner.view(design)
 
 # CairoMakie.set_theme!(Theme(;fontsize=12))
 # fig = ModelingToolkitDesigner.view(design, false)
-# save(joinpath(@__DIR__, "electrical.svg"), fig; resolution=(400,400))
+# save(joinpath(@__DIR__, "electrical.svg"), fig; resolution=(300,300))

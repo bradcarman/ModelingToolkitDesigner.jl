@@ -7,12 +7,15 @@ Examples can be found in the "examples" folder.
 
 ### Hydraulic Example
 
-![example1](https://user-images.githubusercontent.com/40798837/228676202-c13b93c2-d023-4b00-bed8-c8440cb8ca57.png)
+![example2](examples/hydraulic.svg)
 
-### RC Circuit Example
+### Electrical Example
 
 ![example2](examples/electrical.svg)
 
+### Mechanical Example
+
+![example3](examples/mechanical.svg)
 
 # Tutorial
 

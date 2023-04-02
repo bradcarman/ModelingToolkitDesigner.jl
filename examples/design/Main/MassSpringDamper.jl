@@ -1,0 +1,6 @@
+connect(bv.flange, pt2.p2)
+connect(sv.flange_a, pt2.p1)
+connect(dv.flange_a, pt2.p3)
+connect(dv.flange_b, pt1.p3)
+connect(sv.flange_b, pt1.p1)
+connect(gv.flange, pt1.p2)

@@ -36,3 +36,8 @@ end
 path = joinpath(@__DIR__, "design") # folder where visualization info is saved and retrieved
 design = ODESystemDesign(sys, path);
 ModelingToolkitDesigner.view(design)
+
+# using CairoMakie
+# CairoMakie.set_theme!(Theme(;fontsize=12))
+# fig = ModelingToolkitDesigner.view(design, false)
+# save(joinpath(@__DIR__, "hydraulic.svg"), fig; resolution=(400,200))

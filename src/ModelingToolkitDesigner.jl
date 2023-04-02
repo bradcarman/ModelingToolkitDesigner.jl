@@ -629,6 +629,8 @@ function toggle_pass_thrus(design::ODESystemDesign, hide::Bool)
                     connector.color[] = connector.system_color
                 end
             end
+        else
+
         end
     end
 end
