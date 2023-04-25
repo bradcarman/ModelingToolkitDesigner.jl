@@ -309,24 +309,38 @@ function get_design_path(design::ODESystemDesign)
     return replace(design.file, path => "")
 end
 
-find_icon(design::ODESystemDesign) = find_icon(design.system, get_design_path(design))
-
-function find_icon(system::ODESystem, design_path::String)
+function get_icons(system::ODESystem, design_path::String)
     type = string(system.gui_metadata.type)
     path = split(type, '.')
 
-    bases = [
-        design_path
-        joinpath(@__DIR__, "..", "icons")
-    ]
+    pkg_location = Base.find_package(string(path[1]))
+
+    bases = if !isnothing(pkg_location)
+        [
+            design_path
+            joinpath(pkg_location, "..", "..", "icons")
+            joinpath(@__DIR__, "..", "icons")
+        ]
+    else
+        [
+            design_path
+            joinpath(@__DIR__, "..", "icons")
+        ]
+    end
 
     icons = [joinpath(base, path[1:end-1]..., "$(path[end]).png") for base in bases]
+    return abspath.(icons)
+end
 
+find_icon(design::ODESystemDesign) = find_icon(design.system, get_design_path(design))
+
+function find_icon(system::ODESystem, design_path::String)
+    icons = get_icons(system, design_path)
     for icon in icons
         isfile(icon) && return icon
     end
 
-    return joinpath(bases[end], "NotFound.png")
+    return joinpath(@__DIR__, "..", "icons", "NotFound.png")
 end
 
 
@@ -562,17 +576,18 @@ function view(design::ODESystemDesign, interactive = true)
             clear_selection(design)
         end
 
+        #TODO: fix the ordering too
         on(next_wall_button.clicks) do clicks
             for component in design.components
                 for connector in component.connectors
                     if connector.color[] == :pink
-                        if connector.wall[] == :N
+                        if get_wall(connector) == :N
                             connector.wall[] = :E
-                        elseif connector.wall[] == :W
+                        elseif get_wall(connector) == :W
                             connector.wall[] = :N
-                        elseif connector.wall[] == :S
+                        elseif get_wall(connector) == :S
                             connector.wall[] = :W
-                        elseif connector.wall[] == :E
+                        elseif get_wall(connector) == :E
                             connector.wall[] = :S
                         end
                     end
@@ -728,7 +743,7 @@ function connect!(ax::Axis, connection::Tuple{ODESystemDesign,ODESystemDesign})
     lines!(ax, xs, ys; color = connection[1].color[], linestyle = style)
 end
 
-get_wall(design::ODESystemDesign) = design.wall[]
+
 
 get_text_alignment(wall::Symbol) = get_text_alignment(Val(wall))
 get_text_alignment(::Val{:E}) = (:left, :top)
@@ -874,7 +889,18 @@ function draw_icon!(ax::Axis, design::ODESystemDesign)
 
     if !isnothing(design.icon)
         img = load(design.icon)
-        image!(ax, xo, yo, rotr90(img))
+        w = get_wall(design)
+        imgd = if w == :E
+            rotr90(img)
+        elseif w == :S
+            rotr90(rotr90(img))
+        elseif w == :W
+            rotr90(rotr90(rotr90(img)))
+        elseif w == :N
+            img
+        end
+
+        image!(ax, xo, yo, imgd)
     end
 end
 
@@ -902,6 +928,8 @@ function draw_label!(ax::Axis, design::ODESystemDesign)
     text!(ax, xo, yo; text = string(design.system.name), align = (:center, :bottom))
 end
 
+
+
 function draw_nodes!(ax::Axis, design::ODESystemDesign)
 
     xo = Observable(0.0)
@@ -921,13 +949,15 @@ function draw_nodes!(ax::Axis, design::ODESystemDesign)
         (connector) -> begin
 
             connectors_on_wall =
-                filter(x -> x.wall[] == connector.wall[], design.connectors)
+                filter(x -> get_wall(x) == get_wall(connector), design.connectors)
 
             n_items = length(connectors_on_wall)
             delta = 2 * Δh / (n_items + 1)
 
+            sort!(connectors_on_wall, by=x->x.wall[])
+
             for i = 1:n_items
-                x, y = get_node_position(connector.wall[], delta, i)
+                x, y = get_node_position(get_wall(connector), delta, i)
                 connectors_on_wall[i].xy[] = (x + xo[], y + yo[])
             end
         end
@@ -976,12 +1006,12 @@ function draw_node_label!(ax::Axis, connector::ODESystemDesign)
         x = val[1]
         y = val[2]
 
-        xt, yt = get_node_label_position(connector.wall[], x, y)
+        xt, yt = get_node_label_position(get_wall(connector), x, y)
 
         xo[] = xt
         yo[] = yt
 
-        alignment[] = get_text_alignment(connector.wall[])
+        alignment[] = get_text_alignment(get_wall(connector))
     end
 
     scene = GLMakie.Makie.parent_scene(ax)
@@ -997,6 +1027,10 @@ function draw_node_label!(ax::Axis, connector::ODESystemDesign)
         fontsize = current_font_size[] * 0.625,
     )
 end
+
+
+get_wall(design::ODESystemDesign) =  Symbol(string(design.wall[])[1])
+
 
 get_node_position(w::Symbol, delta, i) = get_node_position(Val(w), delta, i)
 get_node_label_position(w::Symbol, x, y) = get_node_label_position(Val(w), x, y)
@@ -1094,7 +1128,7 @@ function save_design(design::ODESystemDesign)
         ]
 
         for connector in component.connectors
-            if connector.wall[] != :E
+            if connector.wall[] != :E  #don't use get_wall() here, need to preserve E1, E2, etc
                 push!(pairs, connector.system.name => string(connector.wall[]))
             end
         end

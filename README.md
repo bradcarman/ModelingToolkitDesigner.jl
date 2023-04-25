@@ -141,20 +141,37 @@ Adding these components to your system will then allow for corners, tees, etc. t
  
 
 # Icons
-ModelingToolkitDesigner.jl comes with icons for the ModelingToolkitStandardLibrary.jl pre-loaded.  For custom components, icons are loaded from the `path` variable supplied to `ODESystemDesign()`.  To find the path ModelingToolkitDesign.jl is searching, pass the system of interest to `ODESystemDesign()` and replace the `.toml` with `.png`.  For example if we want to make an icon for the `sys.vol` component, we can find the path by running...
+ModelingToolkitDesigner.jl comes with icons for the ModelingToolkitStandardLibrary.jl pre-loaded.  For custom components, icons are loaded from either the `path` variable supplied to `ODESystemDesign()` or from an `icons` folder of the package namespace.  To find the paths ModelingToolkitDesign.jl is searching, run the following on the component of interest (for example `sys.vol`)
 
 ```julia
-julia> ODESystemDesign(sys.vol, path).file
-"./design\\ModelingToolkitStandardLibrary\\Hydraulic\\IsothermalCompressible\\FixedVolume.toml"
+julia> println.(ModelingToolkitDesigner.get_icons(sys.vol, path));
+...\ModelingToolkitDesigner.jl\examples\design\ModelingToolkitStandardLibrary\Hydraulic\IsothermalCompressible\FixedVolume.png
+...\ModelingToolkitStandardLibrary.jl\icons\ModelingToolkitStandardLibrary\Hydraulic\IsothermalCompressible\FixedVolume.png      
+...\ModelingToolkitDesigner.jl\icons\ModelingToolkitStandardLibrary\Hydraulic\IsothermalCompressible\FixedVolume.png
 ```
 
-Placing a "FixedVolume.png" file in this location will load that icon.
+The first file location comes from the `path` variable.  The second is looking for a folder `icons` in the component parent package, in this case `ModelingToolkitStandardLibrary`, and the third path is from the `icons` folder of this `ModelingToolkitDesigner` package.  The first real file is the chosen icon load path.  Feel free to contribute icons here for any other public component libraries.
+
+## Icon Rotation
+The icon rotation is controlled by the `wall` atribute in the saved `.toml` design file.  Currently this must be edited by hand.  The default direction is "E" for east.  The image direciton can change to any "N","S","E","W".  For example, to rotate the capacitor icon by -90 degrees (i.e. from "E" to "N") simply edit the design file as
+
+```
+[capacitor]
+n = "S"
+x = 0.51
+y = 0.29
+wall = "N"
+```
 
 # Colors
 ModelingToolkitDesigner.jl colors the connections based on `ModelingToolkitDesigner.design_colors`.  Colors for the ModelingToolkitStandardLibrary.jl are already loaded.  To add a custom connector color, simply use `add_color(system::ODESystem, color::Symbol)` where `system` is a reference to the connector (e.g. `sys.vol.port`) and `color` is a named color from [Colors.jl](https://juliagraphics.github.io/Colors.jl/stable/namedcolors/).
 
 # TODO
 - Finish adding icons for the ModelingToolkitStandardLibrary.jl
+- Rotate image feature
+- Improve text positioning and fontsize
+- How to include connection equations automatically, maybe implement the `input` macro
+- Provide `PassThru`'s without requiring user to add `PassThru` components to ODESystem
 - Add documentation
 
 # [compat]
