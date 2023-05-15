@@ -8,8 +8,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
-   sodipodi:docname="Input.svg"
-   inkscape:export-filename="Input.png"
+   sodipodi:docname="Ramp.svg"
+   inkscape:export-filename="Ramp.png"
    inkscape:export-xdpi="400"
    inkscape:export-ydpi="400"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -29,14 +29,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="31.678384"
-     inkscape:cx="12.46907"
+     inkscape:cx="8.6809984"
      inkscape:cy="14.584077"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="2880"
-     inkscape:window-height="1706"
+     inkscape:window-width="2560"
+     inkscape:window-height="1506"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
@@ -70,9 +70,9 @@
      transform="translate(0,-1020.3622)">
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2, 0.5;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 2,1050.3622 c 10.239538,0 5.9204577,-10.187 9,-18 1.035416,-2.6269 2.994863,9.7063 6,8 1.091938,-0.62 1.589391,-11.1965 4,-12 3,-1 6.103648,-6 9,-6"
+       d="m 2,1050.3622 h 7 l 21,-28"
        id="path1004"
-       sodipodi:nodetypes="csssc" />
+       sodipodi:nodetypes="ccc" />
     <path
        style="fill:#1a1a1a;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 26,1035.3622 h 2 v -1 l 2,2 -2,2 v -1 h -3 v -2 z"

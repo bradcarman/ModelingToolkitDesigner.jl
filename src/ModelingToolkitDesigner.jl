@@ -231,7 +231,7 @@ function is_pass_thru(system::ODESystem)
 end
 
 function design_file(system::ODESystem, path::String)
-    @assert !isnothing(system.gui_metadata) "ODESystem must use @component"
+    @assert !isnothing(system.gui_metadata.type) "ODESystem must use @component: $(system.name)"
 
     # path = joinpath(@__DIR__, "designs")
     if !isdir(path)

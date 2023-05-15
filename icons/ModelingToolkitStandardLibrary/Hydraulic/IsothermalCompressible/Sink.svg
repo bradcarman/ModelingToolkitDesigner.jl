@@ -8,8 +8,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
-   sodipodi:docname="FlowDivider.svg"
-   inkscape:export-filename="FlowDivider.png"
+   sodipodi:docname="Sink.svg"
+   inkscape:export-filename="Source.png"
    inkscape:export-xdpi="400"
    inkscape:export-ydpi="400"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -21,6 +21,25 @@
    xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
+    <marker
+       style="overflow:visible"
+       id="TriangleStart"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="TriangleStart"
+       markerWidth="5.3244081"
+       markerHeight="6.155385"
+       viewBox="0 0 5.3244081 6.1553851"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
+    </marker>
     <marker
        inkscape:stockid="Arrow1Mend"
        orient="auto"
@@ -57,15 +76,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.4"
-     inkscape:cx="-2.7678571"
+     inkscape:zoom="89.6"
+     inkscape:cx="13.956473"
      inkscape:cy="16.25"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="2880"
-     inkscape:window-height="1706"
+     inkscape:window-width="2560"
+     inkscape:window-height="1506"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
@@ -97,18 +116,26 @@
      id="layer1"
      transform="translate(0,-1020.3622)">
     <path
-       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#005c94;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 16,1036.3622 H 29"
+       style="font-variation-settings:normal;vector-effect:none;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#005c94;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;marker:none;stop-color:#000000"
+       d="m 24,1036.3622 v 8 H 8 v -8"
+       id="path4139"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#005c94;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleStart)"
+       d="m 16,1026.2194 v 10.1428"
        id="path4441"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#005c94;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;font-variation-settings:normal;opacity:1;vector-effect:none;fill-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
-       d="m 3,1025.3622 h 13 v 22 H 3"
-       id="path1899" />
+       style="fill:none;fill-opacity:1;stroke:#005c94;stroke-width:0.0999995;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="m 9,1040.3622 c 0.875,0 0.875,-1 1.75,-1 0.875,0 0.875,1 1.75,1 0.875,0 0.875,-1 1.75,-1 0.875,0 0.875,1 1.75,1"
+       id="path1775"
+       sodipodi:nodetypes="ccccc" />
     <path
-       style="fill:none;stroke:#005c94;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;font-variation-settings:normal;opacity:1;vector-effect:none;fill-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
-       d="M 3,1036.3622 H 16"
-       id="path1901" />
+       style="fill:none;fill-opacity:1;stroke:#005c94;stroke-width:0.0999995;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="m 16,1040.3622 c 0.875,0 0.875,-1 1.75,-1 0.875,0 0.875,1 1.75,1 0.875,0 0.875,-1 1.75,-1 0.875,0 0.875,1 1.75,1"
+       id="path1775-0"
+       sodipodi:nodetypes="ccccc" />
   </g>
 </svg>
