@@ -27,7 +27,7 @@ const design_colors = DesignMap[
     DesignColorMap("ModelingToolkitStandardLibrary.Electrical.Pin", :tomato)
     DesignColorMap(
         "ModelingToolkitStandardLibrary.Mechanical.Translational.MechanicalPort",
-        :green,
+        :yellowgreen,
     )
     DesignColorMap(
         "ModelingToolkitStandardLibrary.Mechanical.TranslationalPosition.Flange",
@@ -231,7 +231,7 @@ function is_pass_thru(system::ODESystem)
 end
 
 function design_file(system::ODESystem, path::String)
-    @assert !isnothing(system.gui_metadata.type) "ODESystem must use @component: $(system.name)"
+    @assert !isnothing(system.gui_metadata) "ODESystem must use @component: $(system.name)"
 
     # path = joinpath(@__DIR__, "designs")
     if !isdir(path)
@@ -363,7 +363,7 @@ get_change(::Val{Keyboard.right}) = (+Δh / 5, 0.0)
 function view(design::ODESystemDesign, interactive = true)
 
     if interactive
-        GLMakie.activate!()
+        GLMakie.activate!(inline=false)
     else
         CairoMakie.activate!()
     end
@@ -458,7 +458,7 @@ function view(design::ODESystemDesign, interactive = true)
 
                                 x = xvalues[1] + Δh * 0.8 * 0.5
                                 y = yvalues[1] + Δh * 0.8 * 0.5
-                                selected_system = filtersingle(
+                                selected_system = filterfirst(
                                     s -> is_tuple_approx(s.xy[], (x, y); atol = 1e-3),
                                     [design.components; design.connectors],
                                 )
