@@ -27,13 +27,13 @@ D = Differential(t)
             duration = Inf,
             smooth = 0,
         )
-        src = IC.InputSource(; p_int = 0)
+        src = IC.Pressure(; p_int = 0)
         vol = IC.FixedVolume(; p_int = 0, vol = 10.0)
-        res = IC.Pipe(N; p_int = 0, area = 0.01, length = 500.0)
+        res = IC.Tube(N; p_int = 0, area = 0.01, length = 500.0)
     end
 
     eqs = Equation[
-        connect(stp.output, src.input)
+        connect(stp.output, src.p)
         connect(src.port, res.port_a)
         connect(vol.port, res.port_b)
         connect(src.port, fluid)
