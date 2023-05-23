@@ -21,7 +21,7 @@ import ModelingToolkitStandardLibrary.Blocks as B
     end
 
     eqs = [
-        connect(stp.output, src.input)
+        connect(stp.output, src.p)
         connect(src.port, res.port_a)
         connect(vol.port, res.port_b)
         connect(src.port, fluid)

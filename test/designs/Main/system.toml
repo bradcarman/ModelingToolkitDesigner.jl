@@ -3,12 +3,12 @@ x = 0.68
 y = -0.11
 
 [res]
-port_a = "W"
+_port_a = "W"
 x = 0.87
 y = 0.0
 
 [src]
-input = "W"
+_p = "W"
 x = 0.58
 y = 0.0
 
@@ -17,6 +17,6 @@ x = 0.28
 y = 0.0
 
 [vol]
-port = "W"
+_port = "W"
 x = 1.14
 y = 0.0

@@ -2,6 +2,12 @@
 
 The ModelingToolkitDesigner.jl package is a helper tool for visualizing and editing ModelingToolkit.jl system connections.  
 
+# Updates
+## v0.3.0
+- Settings Files (*.toml) Updates/Breaking Changes
+    - icon rotation now saved with key `r`, previously was `wall` which was not the best name
+    - connectors nodes now saved with an underscore: `_name`, this helps prevent a collision with nodes named `x`, `y`, or `r`
+
 ## Examples
 Examples can be found in the "examples" folder.
 
@@ -153,14 +159,14 @@ julia> println.(ModelingToolkitDesigner.get_icons(sys.vol, path));
 The first file location comes from the `path` variable.  The second is looking for a folder `icons` in the component parent package, in this case `ModelingToolkitStandardLibrary`, and the third path is from the `icons` folder of this `ModelingToolkitDesigner` package.  The first real file is the chosen icon load path.  Feel free to contribute icons here for any other public component libraries.
 
 ## Icon Rotation
-The icon rotation is controlled by the `wall` atribute in the saved `.toml` design file.  Currently this must be edited by hand.  The default direction is "E" for east.  The image direciton can change to any "N","S","E","W".  For example, to rotate the capacitor icon by -90 degrees (i.e. from "E" to "N") simply edit the design file as
+The icon rotation is controlled by the `r` atribute in the saved `.toml` design file.  Currently this must be edited by hand.  The default direction is "E" for east.  The image direciton can change to any "N","S","E","W".  For example, to rotate the capacitor icon by -90 degrees (i.e. from "E" to "N") simply edit the design file as
 
 ```
 [capacitor]
-n = "S"
+_n = "S"
 x = 0.51
 y = 0.29
-wall = "N"
+r = "N"
 ```
 
 # Colors

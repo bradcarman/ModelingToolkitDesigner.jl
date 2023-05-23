@@ -3,29 +3,29 @@ x = 0.09
 y = 0.15
 
 [dv]
-flange_a = "W"
+_flange_a = "W"
 x = 0.44
 y = 0.2
 
 [gv]
-flange = "W"
+_flange = "W"
 x = 0.82
 y = 0.15
 
 [pt1]
-p1 = "S"
-p3 = "N"
+_p1 = "S"
+_p3 = "N"
 x = 0.65
 y = 0.15
 
 [pt2]
-p1 = "S"
-p2 = "W"
-p3 = "N"
+_p1 = "S"
+_p2 = "W"
+_p3 = "N"
 x = 0.25
 y = 0.15
 
 [sv]
-flange_a = "W"
+_flange_a = "W"
 x = 0.44
 y = 0.1

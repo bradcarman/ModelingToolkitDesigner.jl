@@ -277,13 +277,19 @@ function process_children!(
 
 
             if !is_connector
+                #if x and y are missing, add defaults
                 if !haskey(kwargs, "x") & !haskey(kwargs, "y")
                     push!(kwargs_pair, :x => i * 3 * Δh)
                     push!(kwargs_pair, :y => i * Δh)
                 end
+
+                # r => wall for icon rotation
+                if haskey(kwargs, "r")
+                    push!(kwargs_pair, :wall => kwargs["r"])
+                end
             else
-                if haskey(connectors, system.name)
-                    push!(kwargs_pair, :wall => connectors[system.name])
+                if haskey(connectors, safe_connector_name(system.name))
+                    push!(kwargs_pair, :wall => connectors[safe_connector_name(system.name)])
                 end
             end
 
@@ -1113,6 +1119,8 @@ function connection_code(io::IO, design::ODESystemDesign)
 
 end
 
+safe_connector_name(name::Symbol) = Symbol("_$name")
+
 function save_design(design::ODESystemDesign)
 
 
@@ -1127,9 +1135,15 @@ function save_design(design::ODESystemDesign)
             :y => round(y; digits = 2)
         ]
 
+        if component.wall[] != :E
+            push!(pairs, 
+                :r => string(component.wall[])
+            )
+        end
+
         for connector in component.connectors
             if connector.wall[] != :E  #don't use get_wall() here, need to preserve E1, E2, etc
-                push!(pairs, connector.system.name => string(connector.wall[]))
+                push!(pairs, safe_connector_name(connector.system.name) => string(connector.wall[]))
             end
         end
 

@@ -1,39 +1,39 @@
 [capacitor]
-n = "S"
+_n = "S"
 x = 0.51
 y = 0.29
-wall = "N"
+r = "N"
 
 [constant]
-output = "N"
+_output = "N"
 x = 0.71
 y = -0.08
 
 [ground]
-g = "N"
+_g = "N"
 x = 0.51
 y = -0.08
 
 [pt2]
-p1 = "N"
-p2 = "W"
+_p1 = "N"
+_p2 = "W"
 x = 0.9
 y = 0.11
 
 [pt3]
-p1 = "N"
-p3 = "S"
+_p1 = "N"
+_p3 = "S"
 x = 0.51
 y = 0.11
 
 [resistor]
-n = "W"
-p = "S"
+_n = "W"
+_p = "S"
 x = 0.9
 y = 0.29
 
 [source]
-V = "S"
-n = "W"
+_V = "S"
+_n = "W"
 x = 0.71
 y = 0.11
