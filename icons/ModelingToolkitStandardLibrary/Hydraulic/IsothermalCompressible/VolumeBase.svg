@@ -4,12 +4,12 @@
 <svg
    width="32"
    height="32"
-   viewBox="0 0 32 32"
+   viewBox="0 0 31.999999 31.999999"
    id="svg2"
    version="1.1"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
-   sodipodi:docname="Step.svg"
-   inkscape:export-filename="Step.png"
+   sodipodi:docname="VolumeBase.svg"
+   inkscape:export-filename="VolumeBase.png"
    inkscape:export-xdpi="400"
    inkscape:export-ydpi="400"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -28,27 +28,32 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.839192"
-     inkscape:cx="-1.0417198"
-     inkscape:cy="23.738585"
+     inkscape:zoom="22.4"
+     inkscape:cx="-2.5446429"
+     inkscape:cy="20.3125"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     units="px"
-     inkscape:window-width="1920"
-     inkscape:window-height="1137"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
      inkscape:object-paths="true"
-     inkscape:snap-intersection-paths="true"
-     inkscape:snap-center="true"
+     inkscape:object-nodes="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="2880"
+     inkscape:window-height="1706"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     units="px"
      inkscape:showpageshadow="2"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
        id="grid4136"
+       originx="0"
+       originy="0"
        empspacing="8" />
   </sodipodi:namedview>
   <metadata
@@ -67,17 +72,26 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-1020.3622)">
+     transform="translate(-84.5,-485.71575)">
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 2,1050.3622 h 14 v -28 h 14"
-       id="path4139"
+       style="fill:none;fill-rule:evenodd;stroke:#808080;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.5"
+       d="m 86.5,498.71575 v -11 h 28 m 0,28 h -28 v -11"
+       id="path4176"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2, 0.5;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 2,1050.3622 c 18,0 11,-28 28,-28"
-       id="path1004"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cccccc" />
+    <rect
+       style="font-variation-settings:normal;opacity:0.25;vector-effect:none;fill:#005c94;fill-opacity:1;stroke:#005c94;stroke-width:0.999997px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;marker:none;stop-color:#000000;stop-opacity:1"
+       id="rect3958"
+       width="13"
+       height="26"
+       x="87.5"
+       y="488.71576" />
+    <rect
+       style="fill:none;stroke:#b3b3b3;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000;fill-opacity:1;stroke-dasharray:0.5,0.5;stroke-dashoffset:0"
+       id="rect439"
+       width="2"
+       height="26"
+       x="101.5"
+       y="488.71576" />
   </g>
 </svg>

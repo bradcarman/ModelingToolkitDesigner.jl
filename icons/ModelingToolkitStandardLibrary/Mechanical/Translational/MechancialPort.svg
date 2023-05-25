@@ -8,8 +8,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
-   sodipodi:docname="Step.svg"
-   inkscape:export-filename="Step.png"
+   sodipodi:docname="MechancialPort.svg"
+   inkscape:export-filename="MechanicalPort.png"
    inkscape:export-xdpi="400"
    inkscape:export-ydpi="400"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -29,20 +29,19 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="15.839192"
-     inkscape:cx="-1.0417198"
-     inkscape:cy="23.738585"
+     inkscape:cx="-5.6189735"
+     inkscape:cy="18.372149"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="1920"
-     inkscape:window-height="1137"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="2880"
+     inkscape:window-height="1706"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
      inkscape:window-maximized="1"
      inkscape:object-paths="true"
-     inkscape:snap-intersection-paths="true"
-     inkscape:snap-center="true"
+     inkscape:object-nodes="true"
      inkscape:showpageshadow="2"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1">
@@ -68,16 +67,11 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1020.3622)">
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 2,1050.3622 h 14 v -28 h 14"
-       id="path4139"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2, 0.5;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 2,1050.3622 c 18,0 11,-28 28,-28"
-       id="path1004"
-       sodipodi:nodetypes="cc" />
+    <circle
+       style="opacity:1;fill:#abc938;stroke:none;stroke-width:1px;-inkscape-stroke:none;stop-color:#000000;fill-opacity:1"
+       id="path1568"
+       cx="16"
+       cy="1036.3622"
+       r="8" />
   </g>
 </svg>
