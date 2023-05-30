@@ -153,6 +153,21 @@ function ODESystemDesign(
             kwargs...,
         )
 
+        for wall in [:E, :W, :N, :S]
+            connectors_on_wall = filter(x -> get_wall(x) == wall, connectors)
+            n = length(connectors_on_wall)
+            if n > 1
+                i = 0
+                for conn in connectors_on_wall
+                    order = get_wall_order(conn)
+                    i = max(i, order) + 1
+                    if order == 0
+                       conn.wall[] = Symbol(wall, i) 
+                    end
+                end
+            end
+        end
+
 
         for eq in equations(system)
 
@@ -586,16 +601,83 @@ function view(design::ODESystemDesign, interactive = true)
         on(next_wall_button.clicks) do clicks
             for component in design.components
                 for connector in component.connectors
+
+
                     if connector.color[] == :pink
-                        if get_wall(connector) == :N
-                            connector.wall[] = :E
-                        elseif get_wall(connector) == :W
-                            connector.wall[] = :N
-                        elseif get_wall(connector) == :S
-                            connector.wall[] = :W
-                        elseif get_wall(connector) == :E
-                            connector.wall[] = :S
-                        end
+
+                        current_wall = get_wall(connector)
+                        current_order = get_wall_order(connector)
+
+                        
+
+                        if current_order > 1
+                            connectors_on_wall = filter(x -> get_wall(x) == current_wall, component.connectors)
+                            for cow in connectors_on_wall
+
+                                order = max(get_wall_order(cow), 1)
+                                
+                                if order == current_order - 1
+                                    cow.wall[] = Symbol(current_wall, current_order)
+                                end
+                                
+                                if order == current_order
+                                    cow.wall[] = Symbol(current_wall, current_order - 1)
+                                end
+                            end
+                            
+                        else
+
+                            next_wall = if current_wall == :N
+                                :E
+                            elseif current_wall == :W
+                                :N
+                            elseif current_wall == :S
+                                :W
+                            elseif current_wall == :E
+                                :S
+                            end
+
+                            connectors_on_wall = filter(x -> get_wall(x) == next_wall, component.connectors)
+                            
+                            # connector is added to wall, need to fix any un-ordered connectors
+                            for cow in connectors_on_wall
+                                order = get_wall_order(cow)
+                                
+                                if order == 0
+                                    cow.wall[] = Symbol(next_wall, 1)
+                                end
+                            end
+                            
+                            
+                            current_order = length(connectors_on_wall) + 1
+                            if current_order > 1
+                                connector.wall[] = Symbol(next_wall, current_order) 
+                            else
+                                connector.wall[] = next_wall
+                            end
+
+                            
+
+
+                            # connector is leaving wall, need to reduce the order
+                            connectors_on_wall = filter(x -> get_wall(x) == current_wall, component.connectors)
+                            if length(connectors_on_wall) > 1
+                                for cow in connectors_on_wall
+                                    order = get_wall_order(cow)
+                                    
+                                    if order == 0
+                                        cow.wall[] = Symbol(current_wall, 1)
+                                    else
+                                        cow.wall[] = Symbol(current_wall, order - 1)
+                                    end
+                                end
+                            else
+                                for cow in connectors_on_wall
+                                    cow.wall[] = current_wall
+                                end
+                            end
+
+                        end                        
                     end
                 end
             end
@@ -1037,6 +1119,26 @@ end
 
 get_wall(design::ODESystemDesign) =  Symbol(string(design.wall[])[1])
 
+function get_wall_order(design::ODESystemDesign)
+
+    wall = string(design.wall[])
+    if length(wall) > 1
+        order = tryparse(Int, wall[2:end])
+
+        if isnothing(order)
+            order = 1
+        end
+
+        return order
+    else
+
+
+        return 0
+
+    end
+
+
+end
 
 get_node_position(w::Symbol, delta, i) = get_node_position(Val(w), delta, i)
 get_node_label_position(w::Symbol, x, y) = get_node_label_position(Val(w), x, y)
