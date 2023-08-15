@@ -3,6 +3,17 @@
 The ModelingToolkitDesigner.jl package is a helper tool for visualizing and editing ModelingToolkit.jl system connections.  
 
 # Updates
+## v1.0.0
+- added icon rotation feature
+
+![rotation](https://github.com/bradcarman/ModelingToolkitDesigner.jl/assets/40798837/8c904030-5d4c-4ba8-a105-f0b098ae842a)
+
+- added keyboard commands
+    - m: after selecting a component, use the `m` key to turn dragging on.  This can be easier then clicking and dragging.
+    - c: connect
+    - r: rotate
+
+
 ## v0.3.0
 - Connector nodes are now correctly positioned around the component with natural ordering
 
@@ -75,7 +86,7 @@ ModelingToolkitDesigner.view(design)
 
 Components can then be positioned in several ways:
 - keyboard: select component and then use up, down, left, right keys
-- mouse: click and drag (currently only 1 component at a time is supported)
+- mouse: click and drag (or click and then `m` key)
 - alignment: select and align horrizontal or vertial with respective buttons
 
 ![step2-3](https://user-images.githubusercontent.com/40798837/228626821-9e405ec3-e89b-4f30-bfff-ceb761ea6e2f.png)
@@ -84,7 +95,7 @@ Nodes/Connectors can be positioned by selecting with the mouse and using the __m
 
 ![step4-5](https://user-images.githubusercontent.com/40798837/228626824-06f4d432-ea93-408d-ad1a-ddaa6ddc14e6.png)
 
-Connections can then be made by clicking 2 nodes and using the __connect__ button.  One can then click the __save__ button which will store the visualization information in the `path` location in a `.toml` format as well as the connection code in `.jl` format.
+Connections can then be made by clicking 2 nodes and using the __connect__ button or the `c` key.  One can then click the __save__ button which will store the visualization information in the `path` location in a `.toml` format as well as the connection code in `.jl` format.
 
 ![step6-7](https://user-images.githubusercontent.com/40798837/228640663-e263a561-6549-415b-a8ff-b74e78c4bdb9.png)
 
@@ -165,7 +176,7 @@ julia> println.(ModelingToolkitDesigner.get_icons(sys.vol, path));
 The first file location comes from the `path` variable.  The second is looking for a folder `icons` in the component parent package, in this case `ModelingToolkitStandardLibrary`, and the third path is from the `icons` folder of this `ModelingToolkitDesigner` package.  The first real file is the chosen icon load path.  Feel free to contribute icons here for any other public component libraries.
 
 ## Icon Rotation
-The icon rotation is controlled by the `r` atribute in the saved `.toml` design file.  Currently this must be edited by hand.  The default direction is "E" for east.  The image direciton can change to any "N","S","E","W".  For example, to rotate the capacitor icon by -90 degrees (i.e. from "E" to "N") simply edit the design file as
+Rotate an icon using the button or key `r`.  The icon rotation is controlled by the `r` atribute in the saved `.toml` design file.  The default direction is "E" for east.  The image direciton can change to any "N","S","E","W".  For example, to rotate the capacitor icon by -90 degrees (i.e. from "E" to "N") simply edit the design file as
 
 ```
 [capacitor]
