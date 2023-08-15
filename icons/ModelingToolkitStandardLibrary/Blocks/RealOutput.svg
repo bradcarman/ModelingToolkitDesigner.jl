@@ -8,8 +8,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
-   sodipodi:docname="NotFound.svg"
-   inkscape:export-filename="NotFound.png"
+   sodipodi:docname="Output.svg"
+   inkscape:export-filename="Output.png"
    inkscape:export-xdpi="400"
    inkscape:export-ydpi="400"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -20,7 +20,27 @@
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
-     id="defs4" />
+     id="defs4">
+    <marker
+       style="overflow:visible"
+       id="TriangleStart"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="TriangleStart"
+       markerWidth="5.3244081"
+       markerHeight="6.155385"
+       viewBox="0 0 5.3244081 6.1553851"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
+    </marker>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -28,9 +48,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="-20.758929"
-     inkscape:cy="32.410714"
+     inkscape:zoom="15.839192"
+     inkscape:cx="6.629126"
+     inkscape:cy="18.94036"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -41,8 +61,7 @@
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:object-paths="true"
-     inkscape:snap-intersection-paths="true"
-     inkscape:snap-center="true"
+     inkscape:object-nodes="true"
      inkscape:showpageshadow="2"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1">
@@ -68,12 +87,21 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1020.3622)">
-    <rect
-       style="fill:#bfbfbf;stroke:#bfbfbf;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000;stroke-opacity:1;stroke-dasharray:none"
-       id="rect30256"
-       width="16"
-       height="16"
-       x="8"
-       y="1028.3622" />
+    <path
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;-inkscape-stroke:none;stop-color:#000000"
+       id="path1568"
+       sodipodi:type="arc"
+       sodipodi:cx="16"
+       sodipodi:cy="1036.3622"
+       sodipodi:rx="8"
+       sodipodi:ry="8"
+       sodipodi:start="1.5707963"
+       sodipodi:end="4.712389"
+       sodipodi:arc-type="slice"
+       d="m 16,1044.3622 a 8,8 0 0 1 -6.9282032,-4 8,8 0 0 1 0,-8 8,8 0 0 1 6.9282032,-4 v 8 z" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleStart)"
+       d="m 16,1036.3622 h 8"
+       id="path29652" />
   </g>
 </svg>
