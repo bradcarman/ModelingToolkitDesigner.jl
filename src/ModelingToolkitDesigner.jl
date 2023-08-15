@@ -6,6 +6,8 @@ using FilterHelpers
 using FileIO
 using TOML
 
+using ModelingToolkitStandardLibrary.Blocks: AnalysisPoint
+
 
 #TODO: ctrl + up/down/left/right gives bigger jumps
 
@@ -209,6 +211,43 @@ function ODESystemDesign(
             end
 
 
+            if eq.rhs isa AnalysisPoint
+
+                conns = []
+                for connector in [eq.rhs.in, eq.rhs.out]
+                    if contains(string(connector.name), '₊')
+                        # connector of child system
+                        conn_parent, child = split(string(connector.name), '₊')
+                        child_design = filtersingle(
+                            x -> string(x.system.name) == conn_parent,
+                            components,
+                        )
+                        if !isnothing(child_design)
+                            connector_design = filtersingle(
+                                x -> string(x.system.name) == child,
+                                child_design.connectors,
+                            )
+                        else
+                            connector_design = nothing
+                        end
+                    else
+                        # connector of parent system
+                        connector_design =
+                            filtersingle(x -> x.system.name == connector.name, connectors)
+                    end
+
+                    if !isnothing(connector_design)
+                        push!(conns, connector_design)
+                    end
+                end
+
+                for i = 2:length(conns)
+                    push!(connections, (conns[i-1], conns[i]))
+                end
+
+            end
+
+
         end
 
     end
@@ -380,6 +419,18 @@ get_change(::Val{Keyboard.left}) = (-Δh / 5, 0.0)
 get_change(::Val{Keyboard.right}) = (+Δh / 5, 0.0)
 
 
+function next_wall(current_wall)
+    if current_wall == :N
+        :E
+    elseif current_wall == :W
+        :N
+    elseif current_wall == :S
+        :W
+    elseif current_wall == :E
+        :S
+    end
+end
+
 
 function view(design::ODESystemDesign, interactive = true)
 
@@ -422,12 +473,14 @@ function view(design::ODESystemDesign, interactive = true)
         align_horrizontal_button = Button(fig[12, 4]; label = "align horz.", fontsize = 12)
         align_vertical_button = Button(fig[12, 5]; label = "align vert.", fontsize = 12)
         open_button = Button(fig[12, 6]; label = "open", fontsize = 12)
-        mode_toggle = Toggle(fig[12, 7])
+        rotate_button = Button(fig[12, 7]; label = "rotate", fontsize=12)
+        mode_toggle = Toggle(fig[12, 8])
 
         save_button = Button(fig[12, 10]; label = "save", fontsize = 12)
 
 
         Label(fig[1, :], title; halign = :left, fontsize = 11)
+        Label(fig[2,:], "keyboard: m - toggle mouse dragging, c - connect, r - rotate"; halign = :left, fontsize=10)
     end
 
     for component in design.components
@@ -568,24 +621,35 @@ function view(design::ODESystemDesign, interactive = true)
         on(events(fig).keyboardbutton) do event
             if event.action == Keyboard.press
 
-                change = get_change(Val(event.key))
+                if event.key == Keyboard.m
+                    dragging[] = !dragging[]
+                elseif event.key == Keyboard.c
+                    connect!(ax, design)
+                elseif event.key == Keyboard.r
+                    rotate(design)
+                else
 
-                if change != (0.0, 0.0)
-                    for sub_design in [design.components; design.connectors]
-                        if sub_design.color[] == :pink
+                    change = get_change(Val(event.key))
 
-                            xc = sub_design.xy[][1]
-                            yc = sub_design.xy[][2]
+                    if change != (0.0, 0.0)
+                        for sub_design in [design.components; design.connectors]
+                            if sub_design.color[] == :pink
 
-                            sub_design.xy[] = (xc + change[1], yc + change[2])
+                                xc = sub_design.xy[][1]
+                                yc = sub_design.xy[][2]
 
+                                sub_design.xy[] = (xc + change[1], yc + change[2])
+
+                            end
                         end
+
+                        reset_limits!(ax)
+
+                        return Consume(true)
                     end
-
-                    reset_limits!(ax)
-
-                    return Consume(true)
                 end
+
+
             end
         end
 
@@ -627,33 +691,25 @@ function view(design::ODESystemDesign, interactive = true)
                             
                         else
 
-                            next_wall = if current_wall == :N
-                                :E
-                            elseif current_wall == :W
-                                :N
-                            elseif current_wall == :S
-                                :W
-                            elseif current_wall == :E
-                                :S
-                            end
 
-                            connectors_on_wall = filter(x -> get_wall(x) == next_wall, component.connectors)
+
+                            connectors_on_wall = filter(x -> get_wall(x) == next_wall(current_wall), component.connectors)
                             
                             # connector is added to wall, need to fix any un-ordered connectors
                             for cow in connectors_on_wall
                                 order = get_wall_order(cow)
                                 
                                 if order == 0
-                                    cow.wall[] = Symbol(next_wall, 1)
+                                    cow.wall[] = Symbol(next_wall(current_wall), 1)
                                 end
                             end
                             
                             
                             current_order = length(connectors_on_wall) + 1
                             if current_order > 1
-                                connector.wall[] = Symbol(next_wall, current_order) 
+                                connector.wall[] = Symbol(next_wall(current_wall), current_order) 
                             else
-                                connector.wall[] = next_wall
+                                connector.wall[] = next_wall(current_wall)
                             end
 
                             
@@ -711,6 +767,11 @@ function view(design::ODESystemDesign, interactive = true)
         on(mode_toggle.active) do val
             toggle_pass_thrus(design, val)
         end
+
+        on(rotate_button.clicks) do clicks
+            rotate(design)
+        end
+
     end
 
     toggle_pass_thrus(design, !interactive)
@@ -734,6 +795,15 @@ function toggle_pass_thrus(design::ODESystemDesign, hide::Bool)
             end
         else
 
+        end
+    end
+end
+
+function rotate(design::ODESystemDesign)
+
+    for sub_design in [design.components; design.connectors]
+        if sub_design.color[] == :pink
+            sub_design.wall[] = next_wall(get_wall(sub_design))
         end
     end
 end
@@ -957,6 +1027,7 @@ function draw_icon!(ax::Axis, design::ODESystemDesign)
 
     xo = Observable(zeros(2))
     yo = Observable(zeros(2))
+    
 
     scale = if ModelingToolkit.isconnector(design.system)
         0.5 * 0.8
@@ -973,23 +1044,42 @@ function draw_icon!(ax::Axis, design::ODESystemDesign)
         yo[] = [y - Δh * scale, y + Δh * scale]
 
     end
+    
+    
 
 
     if !isnothing(design.icon)
-        img = load(design.icon)
-        w = get_wall(design)
-        imgd = if w == :E
-            rotr90(img)
-        elseif w == :S
-            rotr90(rotr90(img))
-        elseif w == :W
-            rotr90(rotr90(rotr90(img)))
-        elseif w == :N
-            img
+
+        
+        imgd = Observable(load(design.icon))
+
+        update() = begin
+            img = load(design.icon)
+            w = get_wall(design)
+            
+            imgd[] = if w == :E
+                rotr90(img)
+            elseif w == :S
+                rotr90(rotr90(img))
+            elseif w == :W
+                rotr90(rotr90(rotr90(img)))
+            elseif w == :N
+                img
+            end
         end
 
+        update()
+
+        on(design.wall) do val
+
+            update()
+
+        end
+
+        
         image!(ax, xo, yo, imgd)
     end
+    
 end
 
 function draw_label!(ax::Axis, design::ODESystemDesign)

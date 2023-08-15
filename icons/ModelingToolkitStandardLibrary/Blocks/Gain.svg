@@ -8,8 +8,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
-   sodipodi:docname="NotFound.svg"
-   inkscape:export-filename="NotFound.png"
+   sodipodi:docname="Gain.svg"
+   inkscape:export-filename="Gain.png"
    inkscape:export-xdpi="400"
    inkscape:export-ydpi="400"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="-20.758929"
-     inkscape:cy="32.410714"
+     inkscape:zoom="15.839192"
+     inkscape:cx="3.4408321"
+     inkscape:cy="13.700194"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -68,12 +68,19 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1020.3622)">
-    <rect
-       style="fill:#bfbfbf;stroke:#bfbfbf;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000;stroke-opacity:1;stroke-dasharray:none"
-       id="rect30256"
-       width="16"
-       height="16"
-       x="8"
-       y="1028.3622" />
+    <path
+       style="fill:#bfbfbf;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+       d="m 3,1023.3622 v 26 l 26,-13 z"
+       id="path43368" />
+    <text
+       xml:space="preserve"
+       style="font-size:10.6667px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:sans-serif"
+       x="9"
+       y="1040.3622"
+       id="text44400"><tspan
+         sodipodi:role="line"
+         id="tspan44398"
+         x="9"
+         y="1040.3622">k</tspan></text>
   </g>
 </svg>

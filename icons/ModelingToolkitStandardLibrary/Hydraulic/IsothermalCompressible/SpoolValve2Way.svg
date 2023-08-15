@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 25.6 25.6"
+   id="svg4716"
+   version="1.1"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="SpoolValve2Way.svg"
+   inkscape:export-filename="SpoolValve2Way.png"
+   inkscape:export-xdpi="400"
+   inkscape:export-ydpi="400"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata
+     id="metadata4752">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Fig file converted by fig2lat</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1506"
+     id="namedview4750"
+     showgrid="true"
+     units="px"
+     inkscape:object-nodes="true"
+     inkscape:object-paths="true"
+     inkscape:zoom="18.398109"
+     inkscape:cx="15.76249"
+     inkscape:cy="17.175678"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4716"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5294"
+       empspacing="8" />
+  </sodipodi:namedview>
+  <title
+     id="title4718">Fig file converted by fig2lat</title>
+  <desc
+     id="desc4720">http://dktools.sourceforge.net/fig2lat.html</desc>
+  <defs
+     id="defs4722">
+    <style
+       type="text/css"
+       id="style4724"><![CDATA[
+.sA {
+fill: #000000;
+fillrule: evenodd;
+stroke-miterlimit: 20;
+}
+.sC {
+fill: none;
+stroke: #000000;
+stroke-width: 0.9;
+stroke-miterlimit: 20;
+}
+.sB {
+fill: none;
+stroke: #000000;
+stroke-width: 0.9;
+stroke-miterlimit: 20;
+}
+.sF {
+fill: none;
+stroke: #000000;
+stroke-width: 2.7;
+}
+.sE {
+fill: none;
+stroke: #000000;
+stroke-width: 2.7;
+stroke-miterlimit: 20;
+}
+.sD {
+fill: none;
+stroke: #FFFFFF;
+stroke-width: 0.9;
+stroke-miterlimit: 20;
+}
+]]></style>
+  </defs>
+  <path
+     style="fill:none;stroke:#808080;stroke-width:1.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+     d="m 18.4,19.2 v 6.4"
+     id="path1052-4" />
+  <path
+     style="fill:none;stroke:#808080;stroke-width:1.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
+     d="M 7.2,0 V 25.6"
+     id="path1052" />
+  <path
+     style="fill:#cc0000;stroke:none;stroke-width:0.0800003;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+     d="M 8,4.8 H 0 v 1.6 h 8 z"
+     id="path924" />
+  <path
+     style="fill:#005c95;stroke:none;stroke-width:0.08;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;fill-opacity:0.50196081"
+     d="M 25.6,6.4 H 8 v 4 h 17.6 z"
+     id="path924-7" />
+  <path
+     style="fill:#005c95;stroke:none;stroke-width:0.08;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;fill-opacity:0.50196081"
+     d="M 25.6,15.2 H 8 v 4 h 17.6 z"
+     id="path924-7-0" />
+  <g
+     id="g1050"
+     style="fill:#404040;stroke:none">
+    <path
+       style="fill:#404040;stroke:none;stroke-width:0.08;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="M 12.8,1.6 H 8 v 4.8 h 2.4 v 4 H 8 v 4.8 h 2.4 v 4 H 8 V 24 h 4.8 V 1.6"
+       id="path367"
+       sodipodi:nodetypes="ccccccccccccc" />
+    <path
+       style="fill:#404040;stroke:none;stroke-width:0.08;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="m 12.8,1.6 h 4.8 v 4.8 h -2.4 v 4 h 2.4 v 4.8 h -2.4 v 4 h 2.4 V 24 H 12.8 V 1.6"
+       id="path1002"
+       sodipodi:nodetypes="ccccccccccccc" />
+  </g>
+  <path
+     style="fill:#003399;stroke:none;stroke-width:0.0799999;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+     d="M 8,13.6 H 0 v 1.6 h 8 z"
+     id="path924-9" />
+  <path
+     style="fill:none;stroke:#808080;stroke-width:1.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+     d="m 18.4,10.4 v 4.8"
+     id="path1549" />
+  <path
+     style="fill:none;stroke:#808080;stroke-width:1.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+     d="M 18.4,-2e-8 V 6.3999998"
+     id="path1551" />
+</svg>
