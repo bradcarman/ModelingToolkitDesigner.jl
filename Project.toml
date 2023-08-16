@@ -1,7 +1,7 @@
 name = "ModelingToolkitDesigner"
 uuid = "23d639d0-9462-4d1e-84fe-d700424865b8"
 authors = ["Brad Carman <brad_carman@instron.com>"]
-version = "1.0.0"
+version = "1.1.0"
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"

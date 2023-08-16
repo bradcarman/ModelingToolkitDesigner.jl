@@ -3,6 +3,9 @@
 The ModelingToolkitDesigner.jl package is a helper tool for visualizing and editing ModelingToolkit.jl system connections.  
 
 # Updates
+## v1.1.0
+- easier component selection (one only needs to click inside the boarder box)
+
 ## v1.0.0
 - added icon rotation feature
 
@@ -191,12 +194,7 @@ ModelingToolkitDesigner.jl colors the connections based on `ModelingToolkitDesig
 
 # TODO
 - Finish adding icons for the ModelingToolkitStandardLibrary.jl
-- Rotate image feature
 - Improve text positioning and fontsize
 - How to include connection equations automatically, maybe implement the `input` macro
 - Provide `PassThru`'s without requiring user to add `PassThru` components to ODESystem
 - Add documentation
-
-# [compat]
-- ModelingToolkit = "8.50" > needed for Domain feature
-- ModelingToolkitStandardLibrary = "1.12" > needed for Hydraulic components
