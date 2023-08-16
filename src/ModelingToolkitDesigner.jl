@@ -404,7 +404,7 @@ function find_icon(system::ODESystem, design_path::String)
 end
 
 
-function is_tuple_approx(a::Tuple{Float64,Float64}, b::Tuple{Float64,Float64}; atol)
+function is_tuple_approx(a::Tuple{<:Number,<:Number}, b::Tuple{<:Number,<:Number}; atol)
 
     r1 = isapprox(a[1], b[1]; atol)
     r2 = isapprox(a[2], b[2]; atol)
@@ -549,9 +549,6 @@ function view(design::ODESystemDesign, interactive = true)
                             end
 
 
-
-                        elseif plt isa Lines
-
                         elseif plt isa Scatter
 
                             point = plt
@@ -580,6 +577,18 @@ function view(design::ODESystemDesign, interactive = true)
 
                         elseif plt isa Mesh
 
+                            triangles = plt[1][]
+                            points = map(x->sum(x.points)/length(x.points), triangles)
+                            x,y = sum(points)/length(points)
+
+                            selected_component = filtersingle(
+                                c -> is_tuple_approx(c.xy[], (x, y); atol = 1e-3),
+                                design.components,
+                            )
+                            if !isnothing(selected_component)
+                                selected_component.color[] = :pink
+                                dragging[] = true
+                            end
 
 
                         end
@@ -949,6 +958,8 @@ function draw_box!(ax::Axis, design::ODESystemDesign)
     xo = Observable(zeros(5))
     yo = Observable(zeros(5))
 
+    points = Observable([(0., 0.), (1., 0.), (1., 1.), (0., 1.)])
+
 
     Δh_, linewidth = if ModelingToolkit.isconnector(design.system)
         0.6 * Δh, 2
@@ -961,9 +972,16 @@ function draw_box!(ax::Axis, design::ODESystemDesign)
         y = val[2]
 
         xo[], yo[] = box(x, y, Δh_)
+
+        new_points = Tuple{Float64, Float64}[]
+        for i=1:4
+            push!(new_points, (xo[][i], yo[][i]))
+        end
+        points[] = new_points
     end
 
 
+    poly!(ax, points, color=:white)
     lines!(ax, xo, yo; color = design.color, linewidth)
 
 
