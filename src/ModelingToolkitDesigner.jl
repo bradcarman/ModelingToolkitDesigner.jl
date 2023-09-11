@@ -572,7 +572,9 @@ function view(design::ODESystemDesign, interactive = true)
                                     c -> is_tuple_approx(c.xy[], (x, y); atol = 1e-3),
                                     all_connectors,
                                 )
-                                selected_connector.color[] = :pink
+                                if !isnothing(selected_connector)
+                                    selected_connector.color[] = :pink
+                                end
                             end
 
                         elseif plt isa Mesh
