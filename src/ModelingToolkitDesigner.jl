@@ -173,7 +173,7 @@ function ODESystemDesign(
 
         for eq in equations(system)
 
-            if eq.rhs isa Connection
+            if (eq.rhs isa Connection) && isnothing(eq.lhs.systems) #filters out domain_connect #TODO: handle case of domain_connect connection with fluid
 
                 conns = []
                 for connector in eq.rhs.systems
