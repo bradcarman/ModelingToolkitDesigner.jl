@@ -1,7 +1,7 @@
 name = "ModelingToolkitDesigner"
 uuid = "23d639d0-9462-4d1e-84fe-d700424865b8"
 authors = ["Brad Carman <brad_carman@instron.com>"]
-version = "1.1.1"
+version = "1.2.0"
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
@@ -13,11 +13,11 @@ ModelingToolkitStandardLibrary = "16a59e39-deab-5bd0-87e4-056b12336739"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [compat]
-CairoMakie = "0.10"
+CairoMakie = "0.11"
 FileIO = "1.16"
 FilterHelpers = "0.2"
-GLMakie = "0.8"
-ModelingToolkit = "8.50"
+GLMakie = "0.9"
+ModelingToolkit = "8"
 ModelingToolkitStandardLibrary = "2"
 TOML = "1.0"
 julia = "1.6"

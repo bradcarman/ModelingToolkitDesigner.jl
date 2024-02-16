@@ -520,9 +520,8 @@ function view(design::ODESystemDesign, interactive = true)
                             yobservable = image[2]
                             yvalues = yobservable[]
 
-
-                            x = xvalues[1] + Δh * 0.8
-                            y = yvalues[1] + Δh * 0.8
+                            x = xvalues.left + Δh * 0.8
+                            y = yvalues.left + Δh * 0.8
                             selected_system = filtersingle(
                                 s -> is_tuple_approx(s.xy[], (x, y); atol = 1e-3),
                                 [design.components; design.connectors],
@@ -530,8 +529,8 @@ function view(design::ODESystemDesign, interactive = true)
 
                             if isnothing(selected_system)
 
-                                x = xvalues[1] + Δh * 0.8 * 0.5
-                                y = yvalues[1] + Δh * 0.8 * 0.5
+                                x = xvalues.left + Δh * 0.8 * 0.5
+                                y = yvalues.left + Δh * 0.8 * 0.5
                                 selected_system = filterfirst(
                                     s -> is_tuple_approx(s.xy[], (x, y); atol = 1e-3),
                                     [design.components; design.connectors],
@@ -1045,8 +1044,8 @@ end
 
 function draw_icon!(ax::Axis, design::ODESystemDesign)
 
-    xo = Observable(zeros(2))
-    yo = Observable(zeros(2))
+    xo = Observable((0.0,0.0))
+    yo = Observable((0.0,0.0))
     
 
     scale = if ModelingToolkit.isconnector(design.system)
@@ -1060,8 +1059,8 @@ function draw_icon!(ax::Axis, design::ODESystemDesign)
         x = val[1]
         y = val[2]
 
-        xo[] = [x - Δh * scale, x + Δh * scale]
-        yo[] = [y - Δh * scale, y + Δh * scale]
+        xo[] = (x - Δh * scale, x + Δh * scale)
+        yo[] = (y - Δh * scale, y + Δh * scale)
 
     end
     
