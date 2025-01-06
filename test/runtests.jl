@@ -27,9 +27,9 @@ D = Differential(t)
             duration = Inf,
             smooth = 0,
         )
-        src = IC.Pressure(; p_int = 0)
-        vol = IC.FixedVolume(; p_int = 0, vol = 10.0)
-        res = IC.Tube(N; p_int = 0, area = 0.01, length = 500.0)
+        src = IC.Pressure()
+        vol = IC.FixedVolume(; vol = 10.0)
+        res = IC.Tube(N; area = 0.01, length = 500.0)
     end
 
     eqs = Equation[

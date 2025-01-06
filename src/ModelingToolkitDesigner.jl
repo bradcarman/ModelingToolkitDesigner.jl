@@ -942,7 +942,12 @@ end
 get_style(design::ODESystemDesign) = get_style(design.system)
 function get_style(system::ODESystem)
 
-    sts = ModelingToolkit.get_unknowns(system)
+    sts = if pkgversion(ModelingToolkit) >= v"9"
+        ModelingToolkit.get_unknowns(system)
+    else
+        ModelingToolkit.get_states(system) 
+    end
+    
     if length(sts) == 1
         s = first(sts)
         vtype = ModelingToolkit.get_connection_type(s)

@@ -3,6 +3,9 @@
 The ModelingToolkitDesigner.jl package is a helper tool for visualizing and editing ModelingToolkit.jl system connections.  
 
 # Updates
+## v1.4
+- supports ModelingToolkit v8 and v9
+
 ## v1.3
 - updating to ModelingToolkit v9
 
