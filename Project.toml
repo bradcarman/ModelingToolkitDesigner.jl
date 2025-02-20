@@ -10,6 +10,7 @@ FilterHelpers = "d8f44d74-4a63-4059-add9-16c5740a0809"
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 ModelingToolkitStandardLibrary = "16a59e39-deab-5bd0-87e4-056b12336739"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [compat]
@@ -19,6 +20,7 @@ FilterHelpers = "0.2"
 GLMakie = "0.9, 0.10"
 ModelingToolkit = "8,9"
 ModelingToolkitStandardLibrary = "2"
+Revise = "3.7.2"
 TOML = "1"
 julia = "1.6"
 
