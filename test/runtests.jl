@@ -50,25 +50,13 @@ end
 
 path = joinpath(@__DIR__, "designs");
 
-fixed_volume_icon_ans =
-    raw"icons\ModelingToolkitStandardLibrary\Hydraulic\IsothermalCompressible\FixedVolume.png"
-fixed_volume_icon_ans = abspath(fixed_volume_icon_ans)
-fixed_volume_icon_ans = normpath(fixed_volume_icon_ans)
-fixed_volume_icon_ans = lowercase(fixed_volume_icon_ans)
-
+fixed_volume_icon_ans = joinpath(dirname(@__DIR__), "icons", "ModelingToolkitStandardLibrary", "Hydraulic", "IsothermalCompressible", "FixedVolume.png")
 fixed_volume_icon = ModelingToolkitDesigner.find_icon(sys.vol, path)
-fixed_volume_icon = abspath(fixed_volume_icon)
-fixed_volume_icon = normpath(fixed_volume_icon)
-fixed_volume_icon = lowercase(fixed_volume_icon)
-
-#TODO: How can I make this work?  normpath is not doing what I think it should
-# @test fixed_volume_icon == fixed_volume_icon_ans
+@test fixed_volume_icon == fixed_volume_icon_ans
 
 
 design = ODESystemDesign(sys, path);
 @test design.components[2].xy[] == (0.58, 0.0)
-@test lowercase(abspath(design.components[3].icon)) == fixed_volume_icon
+@test abspath(design.components[3].icon) == fixed_volume_icon
 @test_nowarn ModelingToolkitDesigner.view(design)
 @test_nowarn ModelingToolkitDesigner.view(design, false)
-
-
