@@ -70,7 +70,7 @@ import ModelingToolkitStandardLibrary.Blocks as B
 
     systems = @named begin
         stp = B.Step(;height = 10e5, start_time = 0.005)
-        src = IC.InputSource(;p_int=0)
+        src = IC.FixedPressure(;p=0)
         vol = IC.FixedVolume(;p_int=0, vol=10.0)
         res = IC.Pipe(5; p_int=0, area=0.01, length=500.0)
     end
